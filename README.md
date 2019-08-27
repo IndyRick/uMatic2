@@ -1,2 +1,2 @@
-# µMatic
-Arduino µMatic Memory Keyer (WW9JD)
+# µMatic2
+Arduino µMatic2 Memory Keyer (WW9JD)
