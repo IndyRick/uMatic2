@@ -9,7 +9,7 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch - 28 SEP 2019
+ * Current Sketch - 5 OCT 2019
  * First PCB design (Ver 1) completed 24 AUG 2019
  * Current PCB design (Ver 1a) completed 11 SEP 2019
 */
