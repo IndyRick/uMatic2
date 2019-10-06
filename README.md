@@ -3,16 +3,17 @@ WW9JD Arduino µMatic2 Memory Keyer <br>
 <br>
 <br>
 ======================================================<br>
-MAIN µMATIC2 SKETCH  <br>
+MAIN µMATIC2 SKETCH SOURCE CODE (for use in Arduino IDE) <br>
 ======================================================<br>
+uMatic2_MEGA_2560_PRO.ino - Main µMatic2 sketch<br>
+uMatic2.h - Header file that contains Nextion display controls definitions<br>
 <br>
 <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+======================================================<br>
+MAIN µMATIC2 SKETCH COMPILED BINARY CODE (for use with AVRDUDE)<br>
+======================================================<br>
+uMatic2_MEGA_2560_PRO.ino.mega.hex - Compiled binary file ready to upload (via USB) directly into MEGA_2560_PRO<br>
+uMatic2_MEGA_2560_PRO.ino.with_bootloader.mega.hex - Compiled binary file ready to upload (via ISP) directly into MEGA_2560_PRO<br>
 <br>
 <br>
 ======================================================<br>
