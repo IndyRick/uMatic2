@@ -10,7 +10,8 @@ uMatic2.h - Header file that contains Nextion display controls definitions<br>
 <br>
 <br>
 ======================================================<br>
-MAIN µMATIC2 SKETCH COMPILED BINARY CODE (for use with AVRDUDE)<br>
+MAIN µMATIC2 SKETCH COMPILED BINARY CODE (for use with AVRDUDESS)<br>
+  Please see WIKI for instructions<br>
 ======================================================<br>
 uMatic2_MEGA_2560_PRO.ino.mega.hex - Compiled binary file ready to upload (via USB) directly into MEGA_2560_PRO<br>
 uMatic2_MEGA_2560_PRO.ino.with_bootloader.mega.hex - Compiled binary file ready to upload (via ISP) directly into MEGA_2560_PRO<br>
