@@ -5,13 +5,20 @@
  * along with the open source code of others.  It is hoped that a QST article will result from this effort,
  * along with upload to GitHub where the code will be extended by others.
  * 
+ * The QST article was published in the April, 2020, edition of QST. 
+ * 
  * The "<F>" symbol is used to suggest where new Features might be developed/implemented in the future
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch - 5 OCT 2019
+ * Current Sketch - 10 APR 2020
  * First PCB design (Ver 1) completed 24 AUG 2019
- * Current PCB design (Ver 1a) completed 11 SEP 2019
+ * Second PCB design (Ver 1a) completed 11 SEP 2019
+ * Current PCB design (Ver 1b) completed 30 SEP 2019 & first fabricated 23 MAR 2020
+ * Current PCB design (Ver 1c) completed 4 APR 2020
+ * 
+ * If you make modifications to this file, please include the date, your call, and collaboration notes in 1, or more, line comments
+ *   e.g. case 'Q' : sendCW("33132"); break; //19 MAR 2020 WW9JD corrected error discovered by N4TVC
 */
 
 #include "Nextion.h"   //Nextion TFT LCD screen support
@@ -51,6 +58,7 @@ float T_Const = 75; //Timing Constant - To account for timing changes between di
 int Mode = Iambic;
 int PTTwait = 5; //Delay in ms between closing the PTT and Sending lines
 int testI = 0; //A Serial Number that can be used in contests
+bool unMute = 1; // 24 APR 2020 WW9JD Sidetone is ON (MUTE saves state through resets & power cycles)
 int CL = 6; //Call Length - Length of EEPROM memory when using call signs of fixed length
 char call[] = "KK9ABC"; //Default call sign (not allocated to any ham as of Aug 2019)
 
@@ -74,6 +82,7 @@ float e_T_Const;
 int e_Mode;
 int e_PTTwait;
 int e_testI;
+bool e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
 };
 
 
@@ -82,11 +91,11 @@ int e_testI;
  */
 int addr = 0;
 bool setUp = false;
-bool unMute = true;
 bool Stop = false;
 bool Pause = false;
 bool ps = false; // The switch to send a combination of letters as a prosign
 bool cmnt = false; // The switch to indicate that the following text is a comment in a .TXT file 
+bool pracState = false; //Practice State is OFF (keyer will key the transmitter)
 bool PRACon = false;
 bool LOADon = false;
 bool PAUSEon = false;
@@ -98,7 +107,6 @@ String keyBuff = "";
 String pauseBuff = "";
 bool delaySend = true;
 bool tuneState = false;
-bool pracState = false;
 bool firstPush = true;
 bool endFile = false;
 bool WPMSliderTap = false;
@@ -365,6 +373,7 @@ void loadSettings() {
   Mode = keyerSettings.e_Mode;
   PTTwait = keyerSettings.e_PTTwait;
   testI = keyerSettings.e_testI;
+  unMute = keyerSettings.e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
   EEPROM.get(200, call);
 }
 
@@ -384,6 +393,7 @@ void saveSettings() {
   keyerSettings.e_Mode = Mode;
   keyerSettings.e_PTTwait = PTTwait;
   keyerSettings.e_testI = testI;
+  keyerSettings.e_unMute = unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
   EEPROM.put(1, keyerSettings); 
   EEPROM.put(200, call);
 }
@@ -432,10 +442,10 @@ void listenKey(){
  * The functions for adding character & word spaces.
  */
 void add_word(){
-    delay(f_element*7);
+    delay(f_element*6); //mute 2020 WW9JD changed factor from 7 to 6 because each element already has a closing dit space
 }
 void add_char(){
-    delay(f_element*3);
+    delay(f_element*2); //24 APR 2020 WW9JD changed factor from 3 to 2 because each element already has a closing dit space
 }
 
 /*
@@ -514,7 +524,7 @@ void add_straight(){
  */
 void tx_and_sidetone_key(int ti){
     if(ti==1){
-      if (unMute) toneAC(toneFreq, toneVol);
+      if ((unMute)||(setUp)) toneAC(toneFreq, toneVol); // 24 APR 2020 WW9JD - (||(setUp)) MUTE saves state through resets & power cycles
       XMIT(1);
       }
     if(ti==0){
@@ -622,7 +632,7 @@ void ReadText(){
       case 'N' : sendCW("312"); break;
       case 'O' : sendCW("3332"); break;
       case 'P' : sendCW("13312"); break;
-      case 'Q' : sendCW("31332"); break;
+      case 'Q' : sendCW("33132"); break; //19 MAR 2020 WW9JD corrected error discovered by N4TVC
       case 'R' : sendCW("1312"); break;
       case 'S' : sendCW("1112"); break;
       case 'T' : sendCW("32"); break;
@@ -723,6 +733,7 @@ void TUNEPushCallback(void *ptr) {
 /*
  * MUTE button push callback function. 
  * When the MUTE button is touched, the mute features toggles between on & off. 
+ * The chosen state is saved in EEPROM, and restored on the next startup //24 APR 2020 WW9JD
  * MUTE silences only the sidetone.
  * The keyer Notification Sounds BEEPs will still be heard.
  */
@@ -733,6 +744,12 @@ void MUTEPushCallback(void *ptr) {
   }else{
     unMute = false;
     }
+    if (!unMute){
+      MUTE.setText("UNMUTE");
+    }else{
+      MUTE.setText("MUTE");
+    }
+    saveSettings();
     beep();
   }
 
@@ -761,6 +778,7 @@ void PRACPushCallback(void *ptr) {
       pracState = false;
       STOPPushCallback(&STOP);
     }
+    saveSettings();
 }
  
 /*
@@ -769,18 +787,10 @@ void PRACPushCallback(void *ptr) {
  */
 void SPACINGPushCallback(void *ptr) {
     if (!tuneState){
-      if (k_WPM < numb.toInt()){
-        warble();
-      }
-      if (k_WPM >= numb.toInt()){
-        f_WPM = numb.toInt();
-        saveSettings();
-      }
+        f_WPM = numb.toInt(); //24 APR 2020 WW9JD Permitted Farnsworth WPM to be set faster that Keyer WPM because some ops prefer shorter spacing
       if (numi == 0){
         f_WPM=k_WPM;
-        saveSettings();
       }
-      n4.setValue(f_WPM);
     }
     /*
      * Special thanks to SCPhillips.com for his Farnsworth formula.  
@@ -790,6 +800,12 @@ void SPACINGPushCallback(void *ptr) {
      */
     k_const=T_Const/100;
     f_element = (((300*k_WPM)-(186*f_WPM))*k_const/(95*k_WPM*f_WPM))*1000; //(Farnsworth) Character delay time
+    if (f_element >= 0){
+       saveSettings();
+       n4.setValue(f_WPM);
+    }else{
+       warble(); //24 APR 2020 WW9JD Added check to make sure that f_element is greater than 0 before saving f_WPM and f_element
+    }
     STOPPushCallback(&STOP);
 }
 
@@ -1036,13 +1052,20 @@ void LOAD2PushCallback(void *ptr) {
 void SENDPushCallback(void *ptr) {
   if (tuneState){
     warble();
-    STOPPushCallback(&STOP);
+    STOPPushCallback(&STOP);  
     return;
   }
   if (!tuneState){
     if(numi == 0){
-      warble();
+      /*warble();
       STOPPushCallback(&STOP);
+      */
+      b16PushCallback(&b16); //22 MAR 2020 WW9JD feature suggested by N8DUY (unknowingly - during a phone conversation)
+                             /* Tim (N8DUY) commented to me that he had nearly worn out the SEND key on his SA-5010 
+                              *  from sending his call so often.  I never realized that the SA-5010 sent memory 0 by
+                              *  default if no number keys were pressed before SEND.  As the commented lines show, 
+                              *  I had originally programmed that to make the ERROR sound and STOP.
+                              */
       return;
     }
     String numbHold;
@@ -1121,6 +1144,9 @@ void SENDPushCallback(void *ptr) {
               // close the file:
               myFile.close();
               nexLoop(nex_listen_list); //Gives the Nextion display a chance to submit a push event (i.e. STOP something)
+              if (rpt == 99){
+                rpt++;
+              }
               rpt--; //Decrement the variable rpt (the repeat count)
               n5.setValue(rpt);
               n0q.setValue(rpt);
@@ -1397,6 +1423,9 @@ void VolSliderPopCallback(void *ptr) {
  * The T_Slider component pop function. 
  * When the T_Slider is released, the keyer Timing Constant is set, saved, and the keyer
  * plays a beep. 
+ * 
+ * NOTE: You must restart the keyer for this action to take effect
+ * 
  * The Timing Constant is adjusted to make up for differences in the internal timing
  * of different microcontroller boards.  A lower % speeds up sending.  Coupled with the WPM
  * setting, you should be able to adjust the Timing Constant so that at 10 WPM "paris" is sent 
@@ -1895,7 +1924,13 @@ void LOADPushCallback(void *ptr) {
       STOPPushCallback(&STOP);
       return;
     }
+   if (numi != 0){
+      sendCommand("page qwerty");  //14 APR 2020 WW9JD - Finish LOAD on QWERTY page if started on MAIN page
+      Serial1.flush();             // 
+      LOAD2PushCallback(&LOAD2);   //
+   }else{
       warble();
+   }
 }
 
 void SEND2PushCallback(void *ptr) {
