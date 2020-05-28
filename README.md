@@ -30,13 +30,16 @@ MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
 - Sticky MUTE button (maintains state upon reboot)
 - SPC'G permits setting > WPM (greater control of spacing between characters)
+- Added SLEEPn functions in preparation to permit recurring automatic Arduino sleep 
 <br>
 <br>
 ======================================================<br>
 NEXTION DISPLAY - Recent changes   <br>
 ======================================================<br>
-- Settings / Clock (minutes update resets seconds to zero)<br>
-- Settings / Clock (display shows HH:MM:SS)<br>
+- Settings / Clock (minutes update resets seconds to zero)
+- Settings / Clock (display shows HH:MM:SS)
+- Settings / Sleep buttons to include OFF & 10 min
+- Settings / Sleep changes saved to Nextion EPROM
 <br>
 <br>
 <br>
