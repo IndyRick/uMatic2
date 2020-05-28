@@ -11,7 +11,7 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch - 10 APR 2020
+ * Current Sketch - 21 May 2020
  * First PCB design (Ver 1) completed 24 AUG 2019
  * Second PCB design (Ver 1a) completed 11 SEP 2019
  * Current PCB design (Ver 1b) completed 30 SEP 2019 & first fabricated 23 MAR 2020
@@ -161,6 +161,12 @@ void setup() {
   SPACING.attachPush(SPACINGPushCallback, &SPACING);
   SEND.attachPush(SENDPushCallback, &SEND);
   STOP.attachPush(STOPPushCallback, &STOP);
+  SLEEP0.attachPush(SLEEP0PushCallback, &SLEEP0);
+  SLEEP1.attachPush(SLEEP1PushCallback, &SLEEP1);
+  SLEEP30.attachPush(SLEEP30PushCallback, &SLEEP30);
+  SLEEP2.attachPush(SLEEP2PushCallback, &SLEEP2);
+  SLEEP5.attachPush(SLEEP5PushCallback, &SLEEP5);
+  SLEEP10.attachPush(SLEEP10PushCallback, &SLEEP10);
   RPT2.attachPush(RPT2PushCallback, &RPT2);
   PRAC2.attachPush(PRAC2PushCallback, &PRAC2);
   PCb.attachPush(PCbPushCallback, &PCb);
@@ -410,12 +416,16 @@ void saveSettings() {
  */
 void listenKey(){
   if (digitalRead(pinKeyStraight)==LOW) {
+    sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake
+    Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep
   if ((SENDon) && (!PAUSEon)) {
     keyBuff = "|" + keyBuff ;
   }
     add_straight();
   }
   if (digitalRead(pinKeyDit)==LOW){
+    sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake
+    Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep
   if ((SENDon) && (!PAUSEon)) {
     keyBuff = "|" + keyBuff ;
   }
@@ -426,6 +436,8 @@ void listenKey(){
     }
   }
   if (digitalRead(pinKeyDah)==LOW){
+    sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake
+    Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep
   if ((SENDon) && (!PAUSEon)) {
     keyBuff = "|" + keyBuff ;
   }
@@ -1261,6 +1273,49 @@ void wakeUp(){
     sendCommand("sleep=0");
     Serial1.flush();
 }
+
+/*
+ * The next 6 functions use parts of the Sleep/Wake function from the buttons on the Setup Page //21 MAY 2020 WW9JD
+ */
+void SLEEP0PushCallback(void *ptr) {
+  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
+  // and repeat the sleep after waking even without the SLEEPn button touch
+}
+
+void SLEEP1PushCallback(void *ptr) {
+  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
+  // and repeat the sleep after waking even without the SLEEPn button touch
+}
+
+void SLEEP30PushCallback(void *ptr) {
+  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
+  // and repeat the sleep after waking even without the SLEEPn button touch
+/*
+    dbSerial.println("sleep30");
+    sleep_enable();//Enabling sleep mode
+    attachInterrupt(0, wakeUp, LOW);//attaching a interrupt to pin d2
+    attachInterrupt(1, wakeUp, LOW);//attaching a interrupt to pin d3
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);//Setting the sleep mode, in our case full sleep
+    //Serial1.print("sleep=1");
+    sleep_cpu();//activating sleep mode
+*/
+}
+
+void SLEEP2PushCallback(void *ptr) {
+  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
+  // and repeat the sleep after waking even without the SLEEPn button touch
+}
+
+void SLEEP5PushCallback(void *ptr) {
+  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
+  // and repeat the sleep after waking even without the SLEEPn button touch
+}
+
+void SLEEP10PushCallback(void *ptr) {
+  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
+  // and repeat the sleep after waking even without the SLEEPn button touch
+}
+
 
 /*
  * WPM button push callback function. 

@@ -13,6 +13,12 @@ NexButton SPACING = NexButton(1, 15, "SPACING");
 NexButton WPM = NexButton(1, 10, "WPM");
 NexButton SEND = NexButton(1, 4, "SEND");
 NexButton STOP = NexButton(1, 5, "STOP");
+NexButton SLEEP0 = NexButton(2, 26, "SLEEP0");
+NexButton SLEEP1 = NexButton(2, 2, "SLEEP1");
+NexButton SLEEP30 = NexButton(2, 9, "SLEEP30");
+NexButton SLEEP2 = NexButton(2, 10, "SLEEP2");
+NexButton SLEEP5 = NexButton(2, 11, "SLEEP5");
+NexButton SLEEP10 = NexButton(2, 28, "SLEEP10");
 NexButton RPT2 = NexButton(4, 57, "RPT2");
 NexButton PRAC2 = NexButton(4, 61, "PRAC2");
 NexButton PCb = NexButton(4, 60, "PCb");
@@ -174,6 +180,12 @@ NexTouch *nex_listen_list[] = {
   &WPM,
   &SEND,
   &STOP,
+  &SLEEP0,
+  &SLEEP1,
+  &SLEEP30,
+  &SLEEP2,
+  &SLEEP5,
+  &SLEEP10,
   &RPT2,
   &PRAC2,
   &PCb,
