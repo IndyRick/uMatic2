@@ -23,8 +23,8 @@ NEXTION DISPLAY  <br>
 uMatic2.HMI - is the UI creation file to use with the Nextion Editor to modify the µMatic² UI <br>
 uMatic2.tft - is the current compiled UI that you would copy to a µSD card, insert in the Nextion display, turn the power on, wait for the "successed" display, remove the µSD card, cycle the power to use the UI <br>
 uMatic2FontsPics.zip - is a ZIP file containing all of the fonts and pictures used to make the µMatic² UI<br>
-NexHardware.cpp - Nextion library files modified for this project
-NexSettings.h - Nextion library files modified for this project
+NexHardware.cpp - Nextion library files modified for this project<br>
+NexConfig.h - Nextion library files modified for this project<br>
 <br>
 <br>
 ======================================================<br>
