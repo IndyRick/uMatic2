@@ -3,6 +3,7 @@
  */
 
 // Declare your Nextion objects - Example (page id = 0, component id = 1, component name = "b0") 
+NexButton AutoSleep = NexButton(0, 2, "AutoSleep");
 NexButton TUNE = NexButton(1, 20, "TUNE");
 NexButton PRAC = NexButton(1, 16, "PRAC");
 NexButton RPT = NexButton(1, 11, "RPT");
@@ -13,12 +14,14 @@ NexButton SPACING = NexButton(1, 15, "SPACING");
 NexButton WPM = NexButton(1, 10, "WPM");
 NexButton SEND = NexButton(1, 4, "SEND");
 NexButton STOP = NexButton(1, 5, "STOP");
-NexButton SLEEP0 = NexButton(2, 26, "SLEEP0");
-NexButton SLEEP1 = NexButton(2, 2, "SLEEP1");
-NexButton SLEEP30 = NexButton(2, 9, "SLEEP30");
-NexButton SLEEP2 = NexButton(2, 10, "SLEEP2");
-NexButton SLEEP5 = NexButton(2, 11, "SLEEP5");
-NexButton SLEEP10 = NexButton(2, 28, "SLEEP10");
+NexCheckbox Backlight = NexCheckbox(2, 30, "Backlight");
+NexText BLText = NexText(2, 1, "BLText");
+NexButton SLEEP0 = NexButton(2, 27, "SLEEP0");
+NexButton SLEEP1 = NexButton(2, 3, "SLEEP1");
+NexButton SLEEP30 = NexButton(2, 10, "SLEEP30");
+NexButton SLEEP2 = NexButton(2, 11, "SLEEP2");
+NexButton SLEEP5 = NexButton(2, 12, "SLEEP5");
+NexButton SLEEP10 = NexButton(2, 29, "SLEEP10");
 NexButton RPT2 = NexButton(4, 57, "RPT2");
 NexButton PRAC2 = NexButton(4, 61, "PRAC2");
 NexButton PCb = NexButton(4, 60, "PCb");
@@ -77,13 +80,13 @@ NexNumber Time = NexNumber(3, 11, "Time");
 NexNumber Weight = NexNumber(3, 13, "Weight");
 NexNumber PTT = NexNumber(3, 15, "PTT");
 NexButton bSettings = NexButton(1, 37, "bSettings");
-NexButton bSettings2 = NexButton(2, 15, "bSettings2");
+NexButton bSettings2 = NexButton(2, 16, "bSettings2");
 NexButton bSettings3 = NexButton(3, 2, "bSettings3");
 NexButton bSettings4 = NexButton(4, 42, "bSettings4");
 NexButton bSettings5 = NexButton(5, 1, "bSettings5");
 NexButton bsplash = NexButton(2, 12, "bsplash");
 NexButton bref = NexButton(2, 8, "bref");
-NexButton bHome2 = NexButton(2, 1, "bHome2");
+NexButton bHome2 = NexButton(2, 2, "bHome2");
 NexButton bHome4 = NexButton(4, 41, "bHome4");
 NexButton bHome5 = NexButton(5, 22, "bHome5");
 NexButton bendFile = NexButton(4, 83, "bendFile");
@@ -170,6 +173,7 @@ NexNumber n0q = NexNumber(4, 97, "n0q");
 
 // Register a button object to the touch event list.  
 NexTouch *nex_listen_list[] = {
+  &AutoSleep,
   &TUNE,
   &PRAC,
   &RPT,
@@ -180,6 +184,8 @@ NexTouch *nex_listen_list[] = {
   &WPM,
   &SEND,
   &STOP,
+  &Backlight,
+  &BLText,
   &SLEEP0,
   &SLEEP1,
   &SLEEP30,

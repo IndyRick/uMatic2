@@ -11,7 +11,7 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch - 21 May 2020
+ * Current Sketch - 1 JUN 2020
  * First PCB design (Ver 1) completed 24 AUG 2019
  * Second PCB design (Ver 1a) completed 11 SEP 2019
  * Current PCB design (Ver 1b) completed 30 SEP 2019 & first fabricated 23 MAR 2020
@@ -59,6 +59,7 @@ int Mode = Iambic;
 int PTTwait = 5; //Delay in ms between closing the PTT and Sending lines
 int testI = 0; //A Serial Number that can be used in contests
 bool unMute = 1; // 24 APR 2020 WW9JD Sidetone is ON (MUTE saves state through resets & power cycles)
+bool BacklightOnly = 0;  // 30 MAY 2020 WW9JD - Settings saves/sets Backlight checkbox (false means 2560 sleeps, too)
 int CL = 6; //Call Length - Length of EEPROM memory when using call signs of fixed length
 char call[] = "KK9ABC"; //Default call sign (not allocated to any ham as of Aug 2019)
 
@@ -83,6 +84,7 @@ int e_Mode;
 int e_PTTwait;
 int e_testI;
 bool e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
+bool e_BacklightOnly;  // 30 MAY 2020 WW9JD - Settings saves/sets Backlight checkbox
 };
 
 
@@ -148,6 +150,7 @@ void setup() {
 
   
   // Register the Nextion push/pop event callback function of the components
+  AutoSleep.attachPush(AutoSleepPushCallback, &AutoSleep);
   TUNE.attachPush(TUNEPushCallback, &TUNE);
   MUTE.attachPush(MUTEPushCallback, &MUTE);
   RANGE.attachPush(RANGEPushCallback, &RANGE);
@@ -161,6 +164,8 @@ void setup() {
   SPACING.attachPush(SPACINGPushCallback, &SPACING);
   SEND.attachPush(SENDPushCallback, &SEND);
   STOP.attachPush(STOPPushCallback, &STOP);
+  Backlight.attachPush(BacklightPushCallback, &Backlight);
+  BLText.attachPush(BLTextPushCallback, &BLText);
   SLEEP0.attachPush(SLEEP0PushCallback, &SLEEP0);
   SLEEP1.attachPush(SLEEP1PushCallback, &SLEEP1);
   SLEEP30.attachPush(SLEEP30PushCallback, &SLEEP30);
@@ -380,6 +385,7 @@ void loadSettings() {
   PTTwait = keyerSettings.e_PTTwait;
   testI = keyerSettings.e_testI;
   unMute = keyerSettings.e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
+  BacklightOnly = keyerSettings.e_BacklightOnly; // 30 MAY 2020 WW9JD - Settings sets Backlight state 
   EEPROM.get(200, call);
 }
 
@@ -400,6 +406,7 @@ void saveSettings() {
   keyerSettings.e_PTTwait = PTTwait;
   keyerSettings.e_testI = testI;
   keyerSettings.e_unMute = unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
+  keyerSettings.e_BacklightOnly = BacklightOnly; // 30 MAY 2020 WW9JD - Settings saves Backlight state 
   EEPROM.put(1, keyerSettings); 
   EEPROM.put(200, call);
 }
@@ -1248,13 +1255,13 @@ void STOPPushCallback(void *ptr) {
 void EnterTextPushCallback(void *ptr) {
     myDelay(100);
     sendCommand("thup=0");
+    sendCommand("usup=1");
     sendCommand("sleep=1");
     Serial1.flush();
     sleep_enable();//Enabling sleep mode
     attachInterrupt(0, wakeUp, LOW);//attaching a interrupt to pin d2
     attachInterrupt(1, wakeUp, LOW);//attaching a interrupt to pin d3
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);//Setting the sleep mode, in our case full sleep
-    Serial1.print("sleep=1");
     sleep_cpu();//activating sleep mode
 }
 
@@ -1275,45 +1282,89 @@ void wakeUp(){
 }
 
 /*
+ * 30 MAY 2020 WW9JD
+ * Nextion AutoSleep calls these functions to also put the Mega 2560 to sleep/unSleep if !BacklightOnly
+ * This feature requires a change to NexHardware.cpp and the addition of a hidden button on the Splash Page,
+ * along with the needed code to make use of that button's Push event (just like any other button responding
+ * to a physical touch/push)
+ */
+void AutoSleepPushCallback(void *ptr) {
+    sendCommand("sleep=1");
+    if(!BacklightOnly){
+      myDelay(100);
+      Serial1.flush();
+      sleep_enable();//Enabling sleep mode
+      attachInterrupt(0, unSleep, LOW);//attaching a interrupt to pin d2
+      attachInterrupt(1, unSleep, LOW);//attaching a interrupt to pin d3
+      set_sleep_mode(SLEEP_MODE_PWR_DOWN);//Setting the sleep mode, in our case full sleep
+      sleep_cpu();//activating sleep mode
+    }
+}
+
+void unSleep(){
+    sleep_disable();//Disable sleep mode
+    detachInterrupt(0); //Removes the interrupt from pin 2;
+    detachInterrupt(1); //Removes the interrupt from pin 3;
+    sendCommand("sleep=0");
+    Serial1.flush();
+}
+
+/*
  * The next 6 functions use parts of the Sleep/Wake function from the buttons on the Setup Page //21 MAY 2020 WW9JD
  */
 void SLEEP0PushCallback(void *ptr) {
-  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
-  // and repeat the sleep after waking even without the SLEEPn button touch
+  SLEEP0.Set_background_color_bco(65520);
+  SLEEP30.Set_background_color_bco(34815);
+  SLEEP2.Set_background_color_bco(34815);
+  SLEEP5.Set_background_color_bco(34815);
+  SLEEP10.Set_background_color_bco(34815);
+  beep();
 }
 
 void SLEEP1PushCallback(void *ptr) {
-  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
-  // and repeat the sleep after waking even without the SLEEPn button touch
+  SLEEP0.Set_background_color_bco(65520);
+  SLEEP30.Set_background_color_bco(34815);
+  SLEEP2.Set_background_color_bco(34815);
+  SLEEP5.Set_background_color_bco(34815);
+  SLEEP10.Set_background_color_bco(34815);
+  beep();
+  AutoSleepPushCallback(&AutoSleep); //29 MAY 2020 WW9JD Settings Sleep NOW button puts Nextion & Mega 2560 to sleep
 }
 
 void SLEEP30PushCallback(void *ptr) {
-  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
-  // and repeat the sleep after waking even without the SLEEPn button touch
-/*
-    dbSerial.println("sleep30");
-    sleep_enable();//Enabling sleep mode
-    attachInterrupt(0, wakeUp, LOW);//attaching a interrupt to pin d2
-    attachInterrupt(1, wakeUp, LOW);//attaching a interrupt to pin d3
-    set_sleep_mode(SLEEP_MODE_PWR_DOWN);//Setting the sleep mode, in our case full sleep
-    //Serial1.print("sleep=1");
-    sleep_cpu();//activating sleep mode
-*/
+  SLEEP0.Set_background_color_bco(34815);
+  SLEEP30.Set_background_color_bco(65520);
+  SLEEP2.Set_background_color_bco(34815);
+  SLEEP5.Set_background_color_bco(34815);
+  SLEEP10.Set_background_color_bco(34815);
+  beep();
 }
 
 void SLEEP2PushCallback(void *ptr) {
-  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
-  // and repeat the sleep after waking even without the SLEEPn button touch
+  SLEEP0.Set_background_color_bco(34815);
+  SLEEP30.Set_background_color_bco(34815);
+  SLEEP2.Set_background_color_bco(65520);
+  SLEEP5.Set_background_color_bco(34815);
+  SLEEP10.Set_background_color_bco(34815);
+  beep();
 }
 
 void SLEEP5PushCallback(void *ptr) {
-  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
-  // and repeat the sleep after waking even without the SLEEPn button touch
+  SLEEP0.Set_background_color_bco(34815);
+  SLEEP30.Set_background_color_bco(34815);
+  SLEEP2.Set_background_color_bco(34815);
+  SLEEP5.Set_background_color_bco(65520);
+  SLEEP10.Set_background_color_bco(34815);
+  beep();
 }
 
 void SLEEP10PushCallback(void *ptr) {
-  //Prep for code to put the Arduino to sleep at the same time as the Nextion backlight
-  // and repeat the sleep after waking even without the SLEEPn button touch
+  SLEEP0.Set_background_color_bco(34815);
+  SLEEP30.Set_background_color_bco(34815);
+  SLEEP2.Set_background_color_bco(34815);
+  SLEEP5.Set_background_color_bco(34815);
+  SLEEP10.Set_background_color_bco(65520);
+  beep();
 }
 
 
@@ -1410,7 +1461,35 @@ void callText4PushCallback(void *ptr) {
 
 /*
  * ===========================================================================================
- * Keyer Setup page functions
+ * Display Settings page functions
+ * ===========================================================================================
+ */
+
+/*
+ * Backlight button push callback function. 
+ * When the Backlight checkbox is touched, the BacklightOnly features toggles between true & false. 
+ * The chosen state is saved in EEPROM, and restored on the next startup //31 MAY 2020 WW9JD
+ */
+void BacklightPushCallback(void *ptr) {
+  if (BacklightOnly == false){
+    BacklightOnly = true;
+    Backlight.setValue(1);
+  }else{
+    BacklightOnly = false;
+    Backlight.setValue(0);
+    }
+  saveSettings();
+  beep();
+  }
+
+void BLTextPushCallback(void *ptr) {
+  BacklightPushCallback(&Backlight);
+}
+
+
+/*
+ * ===========================================================================================
+ * Keyer Settings page functions
  * ===========================================================================================
  */
 
@@ -1560,6 +1639,7 @@ void SplashPushCallback(void *ptr) {
     n3.setValue(wt);
     n4.setValue(f_WPM);
     n5.setValue(rpt);
+    Backlight.setValue(BacklightOnly);
     if (!unMute){
       MUTE.setText("UNMUTE");
     }else{
@@ -1601,6 +1681,7 @@ void REFSPushCallback(void *ptr) {
  * When the Main Page SETTINGS button is touched, the Display Settings page is shown. 
  */
 void bSettingsPushCallback(void *ptr) {
+    Backlight.setValue(BacklightOnly);
     beep();
 }
 
