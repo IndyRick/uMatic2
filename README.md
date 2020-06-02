@@ -38,10 +38,10 @@ MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
 NEXTION DISPLAY - Recent changes   <br>
 ======================================================<br>
-- Settings / Clock (minutes update resets seconds to zero)<br>
-- Settings / Clock (display shows HH:MM:SS)<br>
-- Settings / Sleep buttons to include OFF & 10 min<br>
-- Settings / Sleep changes saved to Nextion EPROM<br>
+- Settings / Clock (minutes update resets seconds to zero)
+- Settings / Clock (display shows HH:MM:SS)
+- Settings / Sleep buttons to include OFF & 10 min
+- Settings / Sleep changes saved to Nextion EPROM
 <br>
 <br>
 <br>
