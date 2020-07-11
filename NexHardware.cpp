@@ -54,8 +54,8 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
         goto __return;
     }
     
-    nexSerial.setTimeout(timeout);
-    if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
+    Serial1.setTimeout(timeout);
+    if (sizeof(temp) != Serial1.readBytes((char *)temp, sizeof(temp)))
     {
         goto __return;
     }
@@ -113,9 +113,9 @@ uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout)
     start = millis();
     while (millis() - start <= timeout)
     {
-        while (nexSerial.available())
+        while (Serial1.available())
         {
-            c = nexSerial.read();
+            c = Serial1.read();
             if (str_start_flag)
             {
                 if (0xFF == c)
@@ -165,15 +165,15 @@ __return:
  */
 void sendCommand(const char* cmd)
 {
-    while (nexSerial.available())
+    while (Serial1.available())
     {
-        nexSerial.read();
+        Serial1.read();
     }
     
-    nexSerial.print(cmd);
-    nexSerial.write(0xFF);
-    nexSerial.write(0xFF);
-    nexSerial.write(0xFF);
+    Serial1.print(cmd);
+    Serial1.write(0xFF);
+    Serial1.write(0xFF);
+    Serial1.write(0xFF);
 }
 
 
@@ -191,8 +191,8 @@ bool recvRetCommandFinished(uint32_t timeout)
     bool ret = false;
     uint8_t temp[4] = {0};
     
-    nexSerial.setTimeout(timeout);
-    if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
+    Serial1.setTimeout(timeout);
+    if (sizeof(temp) != Serial1.readBytes((char *)temp, sizeof(temp)))
     {
         ret = false;
     }
@@ -225,7 +225,7 @@ bool nexInit(void)
     bool ret2 = false;
     
     dbSerialBegin(9600);
-    nexSerial.begin(9600);
+    Serial1.begin(9600);
     sendCommand("");
     sendCommand("bkcmd=1");
     ret1 = recvRetCommandFinished();
@@ -241,10 +241,10 @@ void nexLoop(NexTouch *nex_listen_list[])
     uint16_t i;
     uint8_t c;  
     
-    while (nexSerial.available() > 0)
+    while (Serial1.available() > 0)
     {   
         delay(10);
-        c = nexSerial.read();
+        c = Serial1.read();
 
         if (NEX_RET_CMD_AUTO_SLEEP == c)
 	   {
@@ -253,12 +253,12 @@ void nexLoop(NexTouch *nex_listen_list[])
 	   }else{	
         if (NEX_RET_EVENT_TOUCH_HEAD == c)
         {
-            if (nexSerial.available() >= 6)
+            if (Serial1.available() >= 6)
             {
                 __buffer[0] = c;  
                 for (i = 1; i < 7; i++)
                 {
-                    __buffer[i] = nexSerial.read();
+                    __buffer[i] = Serial1.read();
                 }
                 __buffer[i] = 0x00;
                 
