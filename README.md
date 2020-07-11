@@ -4,7 +4,7 @@ WW9JD Arduino µMatic² Memory Keyer <br>
 <br>
 ======================================================<br>
 MAIN µMATIC² SKETCH SOURCE CODE (for use in Arduino IDE) <br>
-Current version: 1 JUN 2020<br>
+Current version: 11 JUL 2020<br>
 ======================================================<br>
 uMatic2_MEGA_2560_PRO.ino - Main µMatic² sketch<br>
 uMatic2.h - Header file that contains Nextion display controls definitions<br>
@@ -20,7 +20,7 @@ uMatic2_MEGA_2560_PRO.ino.with_bootloader.mega.hex - Compiled binary file ready 
 <br>
 ======================================================<br>
 NEXTION DISPLAY  <br>
-Current version: 11 JUL 2020<br>
+Current version: 1 JUN 2020<br>
 ======================================================<br>
 uMatic2.HMI - is the UI creation file to use with the Nextion Editor to modify the µMatic² UI <br>
 uMatic2.tft - is the current compiled UI that you would copy to a µSD card, insert in the Nextion display, turn the power on, wait for the "successed" display, remove the µSD card, cycle the power to use the UI <br>
