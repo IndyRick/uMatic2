@@ -1,4 +1,3 @@
-
 /*
  * The purpose of the sketch is to replicate the features of the HeathKit µMatic Memory Keyer SA-5010.
  * The "fully working" prototype version was completed on 8 AUG 2019 by WW9JD using code of his own design,
@@ -11,7 +10,7 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch - 1 JUN 2020
+ * Current Sketch - 11 JUL 2020
  * First PCB design (Ver 1) completed 24 AUG 2019
  * Second PCB design (Ver 1a) completed 11 SEP 2019
  * Current PCB design (Ver 1b) completed 30 SEP 2019 & first fabricated 23 MAR 2020
@@ -296,6 +295,8 @@ void setup() {
   SplashPushCallback(&Splash);
 
   //Set dit length
+  dbSerial.print("dit ");
+  dbSerial.println(dit);
   k_const=T_Const/100;
   dit = (1200/k_WPM)*k_const; 
   /*
@@ -320,6 +321,8 @@ void setup() {
   }
   STOPPushCallback(&STOP);
   setUp = false;
+  dbSerial.print("dit2 ");
+  dbSerial.println(dit);
 }
 
 /*
@@ -476,6 +479,9 @@ void add_char(){
  * <F>It would be relatively straight forward to add checkboxes to enable/disable sensing locations.
  */
 void add_dah(){
+  dbSerial.print("dit3 ");
+  dbSerial.println(dit);
+  
   bool dit_pressed = false;
   float w_dit;
   float w_dah;
@@ -507,6 +513,9 @@ void add_dah(){
  * While the location for dah sensing has never seemed to be a problem, it could, of course, be adjusted.
  */
 void add_dit(){
+  dbSerial.print("dit4 ");
+  dbSerial.println(dit);
+  
 float w_dit;
   tx_and_sidetone_key(1);
   if (Weighting){
@@ -1573,6 +1582,8 @@ void T_SliderPopCallback(void *ptr) {
     Time.setValue(tVal);
     T_Const = tVal;
     saveSettings();
+    k_const=T_Const/100;        // 11 JUL 2020 WW9JD - Added DIT length reset every time 
+    dit = (1200/k_WPM)*k_const; //  the Timing Constant is changed 
     beep();
 }
   
