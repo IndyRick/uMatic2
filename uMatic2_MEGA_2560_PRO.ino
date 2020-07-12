@@ -295,8 +295,6 @@ void setup() {
   SplashPushCallback(&Splash);
 
   //Set dit length
-  dbSerial.print("dit ");
-  dbSerial.println(dit);
   k_const=T_Const/100;
   dit = (1200/k_WPM)*k_const; 
   /*
@@ -321,8 +319,6 @@ void setup() {
   }
   STOPPushCallback(&STOP);
   setUp = false;
-  dbSerial.print("dit2 ");
-  dbSerial.println(dit);
 }
 
 /*
@@ -479,9 +475,6 @@ void add_char(){
  * <F>It would be relatively straight forward to add checkboxes to enable/disable sensing locations.
  */
 void add_dah(){
-  dbSerial.print("dit3 ");
-  dbSerial.println(dit);
-  
   bool dit_pressed = false;
   float w_dit;
   float w_dah;
@@ -513,9 +506,6 @@ void add_dah(){
  * While the location for dah sensing has never seemed to be a problem, it could, of course, be adjusted.
  */
 void add_dit(){
-  dbSerial.print("dit4 ");
-  dbSerial.println(dit);
-  
 float w_dit;
   tx_and_sidetone_key(1);
   if (Weighting){
@@ -2522,4 +2512,3 @@ void warble (){
     i++;
     } while (i < 7);
 }
-  
