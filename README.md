@@ -4,7 +4,7 @@ WW9JD Arduino µMatic² Memory Keyer <br>
 <br>
 ======================================================<br>
 MAIN µMATIC² SKETCH SOURCE CODE (for use in Arduino IDE) <br>
-Current version: 11 JUL 2020<br>
+Current version: 23 OCT 2020<br>
 ======================================================<br>
 uMatic2_MEGA_2560_PRO.ino - Main µMatic² sketch<br>
 uMatic2.h - Header file that contains Nextion display controls definitions<br>
@@ -32,6 +32,7 @@ NexConfig.h - Nextion library files modified for this project<br>
 ======================================================<br>
 MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
+- 23 OCT 2020 "Sticky" Sleep function introduced a timimg error that is now fixed
 - Sticky MUTE button (maintains state upon reboot)
 - SPC'G permits setting > WPM (greater control of spacing between characters)
 - Added functions to permit recurring automatic Arduino and/or Nextion sleep 
