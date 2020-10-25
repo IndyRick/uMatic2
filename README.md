@@ -32,7 +32,7 @@ NexConfig.h - Nextion library files modified for this project<br>
 ======================================================<br>
 MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
-- 23 OCT 2020 "Sticky" Sleep function introduced a timimg error that is now fixed
+- Fixed a timimg error that was introduced with the previously added "Sticky" Sleep function  (23 OCT 2020)
 - Sticky MUTE button (maintains state upon reboot)
 - SPC'G permits setting > WPM (greater control of spacing between characters)
 - Added functions to permit recurring automatic Arduino and/or Nextion sleep 
