@@ -10,10 +10,12 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch - 11 JUL 2020
+ * Current Sketch "A" - 23 OCT 2020 
+ * On 25 OCT 2020 WW9JD added transmitting the Current Sketch "letter code" for am audible version verification.
+ *   This only sounds when the keyer is reset, to avoid it being annoying.
  * First PCB design (Ver 1) completed 24 AUG 2019
  * Second PCB design (Ver 1a) completed 11 SEP 2019
- * Current PCB design (Ver 1b) completed 30 SEP 2019 & first fabricated 23 MAR 2020
+ * Third PCB design (Ver 1b) completed 30 SEP 2019 & first fabricated 23 MAR 2020
  * Current PCB design (Ver 1c) completed 4 APR 2020
  * 
  * If you make modifications to this file, please include the date, your call, and collaboration notes in 1, or more, line comments
@@ -117,6 +119,8 @@ float k_const=T_Const/100; //Adjustment needed for timing variance introduced by
 float f_element; //(Farnsworth) Character delay time
 float f_wt; //Decimal weight factor from a lookup table
 float ratio;
+float holdTouchtime;
+bool touched = false;
 
 
 /*
@@ -312,6 +316,7 @@ void setup() {
   keyBuff = "";
   keyBuff = "K[Ready]";
   if (hold == "KK9ABC"){
+    keyBuff = "A[Sketch version 23 OCT 2020]"; //25 OCT 2020 WW9JD Transmits sketch version info on RESET
     keyBuff = keyBuff + "[To set your callsign - 1.Tap QWERTY KYBD 2.Tap LOAD 3.Enter your call with the green keys 4.Tap END FILE]";
   }
   while (keyBuff != ""){
@@ -328,6 +333,7 @@ void setup() {
  */
 
 void loop() {
+  
   /*
    * When a pop or push event occurred every time,
    * the corresponding component[right page id and component id] in touch event list will be asked.
@@ -336,7 +342,8 @@ void loop() {
   
   if (!tuneState) listenKey();
   if (tuneState) tx_and_sidetone_key(1);
-
+  sendTouch(); //23 OCT 2020 WW9JD
+  
   if (keyBuff != "") {
     ledNORMoff();
     ledSENDon();
@@ -422,16 +429,18 @@ void saveSettings() {
  */
 void listenKey(){
   if (digitalRead(pinKeyStraight)==LOW) {
-    sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake
-    Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep
+    //sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake (commented out 23 OCT 2020 WW9JD)
+    //Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep (commented out 23 OCT 2020 WW9JD)
+  touched = true; //24 OCT 2020 WW9JD
   if ((SENDon) && (!PAUSEon)) {
     keyBuff = "|" + keyBuff ;
   }
     add_straight();
   }
   if (digitalRead(pinKeyDit)==LOW){
-    sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake
-    Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep
+    //sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake (commented out 23 OCT 2020 WW9JD)
+    //Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep (commented out 23 OCT 2020 WW9JD)
+  touched = true; //24 OCT 2020 WW9JD
   if ((SENDon) && (!PAUSEon)) {
     keyBuff = "|" + keyBuff ;
   }
@@ -442,8 +451,9 @@ void listenKey(){
     }
   }
   if (digitalRead(pinKeyDah)==LOW){
-    sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake
-    Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep
+    //sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake (commented out 23 OCT 2020 WW9JD)
+    //Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep (commented out 23 OCT 2020 WW9JD)
+  touched = true; //24 OCT 2020 WW9JD
   if ((SENDon) && (!PAUSEon)) {
     keyBuff = "|" + keyBuff ;
   }
@@ -453,6 +463,18 @@ void listenKey(){
       case 2 :  add_straight(); break;
     }
   }
+}
+
+/*
+ * This functions sends a "touch" to the Nextion display in order to keep it out of timed sleep. 24 OCT 2020 WW9JD
+ */
+void sendTouch(){
+    if ((touched) && (millis() - holdTouchtime > 25)) {
+    sendCommand("repo thsp,1");//Just a Nextion command that can be executed quickly for Nextion serial wake (commented out 23 OCT 2020 WW9JD)
+    Serial1.flush();//Adds a serial communication with the Nextion display to wake the display, if asleep (commented out 23 OCT 2020 WW9JD)
+    holdTouchtime = millis();
+    touched = false;
+    }
 }
   
 
@@ -475,6 +497,7 @@ void add_char(){
  * <F>It would be relatively straight forward to add checkboxes to enable/disable sensing locations.
  */
 void add_dah(){
+  //Serial.println("dah"); //leave this line and commented out to remind what debug println looks like
   bool dit_pressed = false;
   float w_dit;
   float w_dah;
