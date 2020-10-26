@@ -2,7 +2,7 @@
 WW9JD Arduino µMatic² Memory Keyer <br>
 <br>
 <br>
-**NOTE: To download ANY file
+*NOTE: To download ANY file
 - click on the file on the list, above
 - right-click on the Raw or Download button (whichever is presented)
 - select Save File (Target) As
