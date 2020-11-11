@@ -9,7 +9,8 @@ WW9JD Arduino µMatic² Memory Keyer <br>
 <br>
 ======================================================<br>
 MAIN µMATIC² SKETCH SOURCE CODE (for use in Arduino IDE) <br>
-Current version: 23 OCT 2020<br>
+Current version: 1 NOV 2020 "B"<br>
+The letter version sounds when
 ======================================================<br>
 uMatic2_MEGA_2560_PRO.ino* - Main µMatic² sketch<br>
 uMatic2.h* - Header file that contains Nextion display controls definitions<br>
