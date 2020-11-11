@@ -10,7 +10,7 @@ WW9JD Arduino µMatic² Memory Keyer <br>
 ======================================================<br>
 MAIN µMATIC² SKETCH SOURCE CODE (for use in Arduino IDE) <br>
 Current version: 1 NOV 2020 "B"<br>
-The letter version sounds when
+The letter version sounds when EEPROM is reset<br>
 ======================================================<br>
 uMatic2_MEGA_2560_PRO.ino* - Main µMatic² sketch<br>
 uMatic2.h* - Header file that contains Nextion display controls definitions<br>
@@ -38,6 +38,10 @@ NexConfig.h* - Nextion library files modified for this project<br>
 ======================================================<br>
 MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
+- Added the ability of SENDing files without displaying the text. Text display was wrecking 
+  the WPM & Farnsworth timing. The time it takes to communicate the letter to be displayed
+  on the Nextion via serial added a fixed delay that did not vary with WPM speed. The
+  Keyer Settings Page has added a two-state button that enables/disables text display. (1 NOV 2020)
 - Fixed a timimg error that was introduced with the previously added "Sticky" Sleep function  (23 OCT 2020)
 - Sticky MUTE button (maintains state upon reboot)
 - SPC'G permits setting > WPM (greater control of spacing between characters)
@@ -49,6 +53,7 @@ MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
 NEXTION DISPLAY - Recent changes   <br>
 ======================================================<br>
+- The Keyer Settings Page has added a two-state button that enables/disables text display. (1 NOV 2020)
 - Settings / Clock (minutes update resets seconds to zero)<br>
 - Settings / Clock (display shows HH:MM:SS)<br>
 - Settings / Sleep buttons to include OFF & 10 min<br>
