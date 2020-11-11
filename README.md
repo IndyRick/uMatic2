@@ -42,12 +42,12 @@ MAIN µMATIC² SKETCH - Recent changes <br>
   the WPM & Farnsworth timing. The time it takes to communicate the letter to be displayed<br>
   on the Nextion via serial added a fixed delay that did not vary with WPM speed. The<br>
   Keyer Settings Page has added a two-state button that enables/disables text display. (1 NOV 2020)<br>
-- Fixed a timimg error that was introduced with the previously added "Sticky" Sleep function  (23 OCT 2020)
-- Sticky MUTE button (maintains state upon reboot)
-- SPC'G permits setting > WPM (greater control of spacing between characters)
-- Added functions to permit recurring automatic Arduino and/or Nextion sleep 
-- Sleep interval is indicated with button color change (active interval is yellow)
-- Sleep state (Nextion backlight & Arduino, or Backlight Only) is saved is upon reboot
+- Fixed a timimg error that was introduced with the previously added "Sticky" Sleep function  (23 OCT 2020)<br>
+- Sticky MUTE button (maintains state upon reboot)<br>
+- SPC'G permits setting > WPM (greater control of spacing between characters)<br>
+- Added functions to permit recurring automatic Arduino and/or Nextion sleep <br>
+- Sleep interval is indicated with button color change (active interval is yellow)<br>
+- Sleep state (Nextion backlight & Arduino, or Backlight Only) is saved is upon reboot<br>
 <br>
 <br>
 ======================================================<br>
