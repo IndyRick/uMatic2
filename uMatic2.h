@@ -72,8 +72,9 @@ NexSlider VolSlider = NexSlider(3, 7, "VolSlider");
 NexSlider T_Slider = NexSlider(3, 12, "T_Slider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
 NexSlider PTTSlider = NexSlider(3, 16, "PTTSlider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
 NexButton resetKeyer = NexButton(3, 6, "resetKeyer");
+NexDSButton txtDsp = NexDSButton(3, 26, "txtDsp");
 NexButton resetI = NexButton(3, 19, "resetI");
-NexText mode_text = NexText(3, 26, "mode_text");
+NexText mode_text = NexText(3, 22, "mode_text");
 NexNumber Pitch = NexNumber(3, 4, "Pitch");
 NexNumber Vol = NexNumber(3, 8, "Vol");
 NexNumber Time = NexNumber(3, 11, "Time");
@@ -236,6 +237,7 @@ NexTouch *nex_listen_list[] = {
   &mode_slider,
   &PitchSlider,
   &resetKeyer,
+  &txtDsp,
   &resetI,
   &bSettings,
   &bSettings2,

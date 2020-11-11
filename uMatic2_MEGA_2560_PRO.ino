@@ -10,7 +10,7 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch "A" - 23 OCT 2020 
+ * Current Sketch "B" - 1 NOV 2020 
  * On 25 OCT 2020 WW9JD added transmitting the Current Sketch "letter code" for am audible version verification.
  *   This only sounds when the keyer is reset, to avoid it being annoying.
  * First PCB design (Ver 1) completed 24 AUG 2019
@@ -121,6 +121,8 @@ float f_wt; //Decimal weight factor from a lookup table
 float ratio;
 float holdTouchtime;
 bool touched = false;
+bool dispTxt = true; // 1 NOV 2020 WW9JD - Saves state of transmitted text display (hide text so that Farnsworth text speed is accurate)
+bool dispTxtHold; //
 
 
 /*
@@ -194,6 +196,7 @@ void setup() {
   T_Slider.attachPop(T_SliderPopCallback, &T_Slider);
   PTTSlider.attachPop(PTTSliderPopCallback, &PTTSlider);
   resetKeyer.attachPush(resetKeyerPushCallback, &resetKeyer);
+  txtDsp.attachPush(txtDspPushCallback, &txtDsp);
   resetI.attachPush(resetIPushCallback, &resetI);
   bSettings.attachPush(bSettingsPushCallback, &bSettings);
   bSettings2.attachPush(bSettings2PushCallback, &bSettings2);
@@ -316,7 +319,7 @@ void setup() {
   keyBuff = "";
   keyBuff = "K[Ready]";
   if (hold == "KK9ABC"){
-    keyBuff = "A[Sketch version 23 OCT 2020]"; //25 OCT 2020 WW9JD Transmits sketch version info on RESET
+    keyBuff = keyBuff + "B[Sketch version 1 NOV 2020]   "; //25 OCT 2020 WW9JD Transmits sketch version info on RESET
     keyBuff = keyBuff + "[To set your callsign - 1.Tap QWERTY KYBD 2.Tap LOAD 3.Enter your call with the green keys 4.Tap END FILE]";
   }
   while (keyBuff != ""){
@@ -343,7 +346,7 @@ void loop() {
   if (!tuneState) listenKey();
   if (tuneState) tx_and_sidetone_key(1);
   sendTouch(); //23 OCT 2020 WW9JD
-  
+
   if (keyBuff != "") {
     ledNORMoff();
     ledSENDon();
@@ -1151,8 +1154,11 @@ void SENDPushCallback(void *ptr) {
               if (myFile) {
                   SendHold1 = "Sending file " + sdFile;
                   MsgDisp(SendHold1);
+                  dispTxtHold = dispTxt; // 1 NOV 2020 WW9JD
+                  dispTxt = true; // 1 NOV 2020 WW9JD - Display text if hidden so that file contents is displayed
                   qwertyDisp(SendHold1);
                   DisplayText(" ");
+                    dispTxt = dispTxtHold; // 1 NOV 2020 WW9JD
                 while (myFile.available()) {
                     nexLoop(nex_listen_list); //Gives the Nextion display a chance to submit a push event (i.e. STOP something)
                     ReadHold = myFile.read();
@@ -1161,9 +1167,9 @@ void SENDPushCallback(void *ptr) {
                     //while ((keyBuff.length() > 100) || (myFile.read() == 0)){
                     while (keyBuff.length() > 100){
                       ReadText();
-                    nexLoop(nex_listen_list); //Gives the Nextion display a chance to submit a push event (i.e. STOP something)
-                    if (NORMon) return; //If you tap STOP during the loop, this will exit out of reading the file
-                    }
+                      nexLoop(nex_listen_list); //Gives the Nextion display a chance to submit a push event (i.e. STOP something)
+                      if (NORMon) return; //If you tap STOP during the loop, this will exit out of reading the file
+                      }
                     if (!myFile.available()){
                         while (keyBuff != ""){
                               ReadText();
@@ -1171,6 +1177,7 @@ void SENDPushCallback(void *ptr) {
                               if (NORMon) return; //If you tap STOP during the loop, this will exit out of reading the file
                       }
                     }
+                    
                     }
                 }else {
                   // if the file didn't open, print an error:
@@ -1244,7 +1251,10 @@ void STOPPushCallback(void *ptr) {
     ledNORMon(); //Normal LED configuration
     DisplayText("off");
     MsgDisp(" ");
+    dispTxtHold = dispTxt; // 1 NOV 2020 WW9JD - Permits clearing of text display (if hidden so that Farnsworth text speed is accurate)
+    dispTxt = true;        //above
     qwertyDisp(" ");
+    dispTxt = dispTxtHold; //above
     keyBuff="";
     n5.setValue(rpt);
     n0q.setValue(rpt);
@@ -1464,10 +1474,12 @@ void MsgDisp(String MsgTxt){
 }
 
 void qwertyDisp(String MsgTxt){
+if (dispTxt || cmnt){             // 1 NOV 2020 WW9JD - Show/hide text so that Farnsworth text speed is accurate
   char charHold[30];
   MsgTxt.toCharArray(charHold, 30);
   qwertyText.setText(charHold);
   kybdText.setText(charHold);
+}
 }
 
 /*
@@ -1641,6 +1653,29 @@ void resetIPushCallback(void *ptr){
       testI = 0; 
       saveSettings();
       beep();   
+}
+
+
+/*
+ * Function added 1 NOV 2020 WW9JD
+ * Display/hide the text from a file as a file is sent.
+ * - It turns out that the trouble I was having getting the Farnsworth timing correct was the 
+ * delay added by communicating the display text to the Nextion. With the display turned off,
+ * the Farnsworth formula worked perfectly AND no timing factor was needed (Timing Constant = 100%)
+ * - The Display/Hide Text button on the Keyer Settings page gives the option to hide text display
+ * for those times that exact timing is neede (e.g. CW training/practice). 
+ * - Text is only hidden during transmission. Comment text is always displayed.
+ */
+void txtDspPushCallback(void *ptr){
+    uint32_t hideTxt;
+    txtDsp.getValue(&hideTxt);
+    if (hideTxt==1){
+     dispTxt = false; 
+    }
+    if (hideTxt==0){
+     dispTxt = true; 
+    }
+      beep(); 
 }
 
 
