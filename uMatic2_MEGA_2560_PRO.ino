@@ -10,7 +10,7 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch "B" - 1 NOV 2020 
+ * Current Sketch "C" - 19 NOV 2020 
  * On 25 OCT 2020 WW9JD added transmitting the Current Sketch "letter code" for am audible version verification.
  *   This only sounds when the keyer is reset, to avoid it being annoying.
  * First PCB design (Ver 1) completed 24 AUG 2019
@@ -34,8 +34,8 @@
 const int pinKeyStraight = 2; //TRS plug TIP
 int pinKeyDit = 3; //TRS plug TIP
 int pinKeyDah = 4; //TRS plug RING
-const int pinPTT = 5; //TRS plug RING
-const int pinXMIT = 6; //TRS plug TIP
+const int pinPTT = 6; //TRS plug RING //201114 WW9JD Discovered XMIT & PTT were swapped
+const int pinXMIT = 5; //TRS plug TIP
 const int pinOnboardLed = LED_BUILTIN;
 const int testSD = 35; //This permits SD card breakout board test (SDtest) without hooking up Nextion display
 const int SDcrd = 53;
@@ -46,6 +46,9 @@ File myFile;
 const int Iambic = 0;
 const int Iambic_Rev = 1;
 const int Bug = 2;
+const int Single = 3; //19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key)
+const int Single_Rev = 4;//
+
 
 // DEFAULT STATE with EEPROM Override <<<<<<<<<<<<<<<
 int toneFreq = 600;  //Sidetone Hz
@@ -61,6 +64,7 @@ int PTTwait = 5; //Delay in ms between closing the PTT and Sending lines
 int testI = 0; //A Serial Number that can be used in contests
 bool unMute = 1; // 24 APR 2020 WW9JD Sidetone is ON (MUTE saves state through resets & power cycles)
 bool BacklightOnly = 0;  // 30 MAY 2020 WW9JD - Settings saves/sets Backlight checkbox (false means 2560 sleeps, too)
+int abMode = 0; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
 int CL = 6; //Call Length - Length of EEPROM memory when using call signs of fixed length
 char call[] = "KK9ABC"; //Default call sign (not allocated to any ham as of Aug 2019)
 
@@ -86,6 +90,7 @@ int e_PTTwait;
 int e_testI;
 bool e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
 bool e_BacklightOnly;  // 30 MAY 2020 WW9JD - Settings saves/sets Backlight checkbox
+int e_abMode; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
 };
 
 
@@ -123,6 +128,8 @@ float holdTouchtime;
 bool touched = false;
 bool dispTxt = true; // 1 NOV 2020 WW9JD - Saves state of transmitted text display (hide text so that Farnsworth text speed is accurate)
 bool dispTxtHold; //
+int abModeHold; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
+bool squeeze=false; //
 
 
 /*
@@ -197,6 +204,7 @@ void setup() {
   PTTSlider.attachPop(PTTSliderPopCallback, &PTTSlider);
   resetKeyer.attachPush(resetKeyerPushCallback, &resetKeyer);
   txtDsp.attachPush(txtDspPushCallback, &txtDsp);
+  iMode.attachPush(iModePushCallback, &iMode);
   resetI.attachPush(resetIPushCallback, &resetI);
   bSettings.attachPush(bSettingsPushCallback, &bSettings);
   bSettings2.attachPush(bSettings2PushCallback, &bSettings2);
@@ -319,7 +327,7 @@ void setup() {
   keyBuff = "";
   keyBuff = "K[Ready]";
   if (hold == "KK9ABC"){
-    keyBuff = keyBuff + "B[Sketch version 1 NOV 2020]   "; //25 OCT 2020 WW9JD Transmits sketch version info on RESET
+    keyBuff = keyBuff + "C[Sketch version 19 NOV 2020]   "; //25 OCT 2020 WW9JD Transmits sketch version info on RESET
     keyBuff = keyBuff + "[To set your callsign - 1.Tap QWERTY KYBD 2.Tap LOAD 3.Enter your call with the green keys 4.Tap END FILE]";
   }
   while (keyBuff != ""){
@@ -395,6 +403,7 @@ void loadSettings() {
   testI = keyerSettings.e_testI;
   unMute = keyerSettings.e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
   BacklightOnly = keyerSettings.e_BacklightOnly; // 30 MAY 2020 WW9JD - Settings sets Backlight state 
+  abMode = keyerSettings.e_abMode; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
   EEPROM.get(200, call);
 }
 
@@ -416,6 +425,7 @@ void saveSettings() {
   keyerSettings.e_testI = testI;
   keyerSettings.e_unMute = unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
   keyerSettings.e_BacklightOnly = BacklightOnly; // 30 MAY 2020 WW9JD - Settings saves Backlight state 
+  keyerSettings.e_abMode = abMode; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
   EEPROM.put(1, keyerSettings); 
   EEPROM.put(200, call);
 }
@@ -450,7 +460,24 @@ void listenKey(){
     switch(Mode){
       case 0 :  add_dit(); break;
       case 1 :  add_dah(); break;
-      case 2 :  add_dit(); break;
+      case 2 :  if (!digitalRead(pinKeyDah)==LOW){
+                add_dit();
+                break;
+                }else{
+                  break;
+                }//19 NOV 2020 WW9JD - Fixed Bug behavior error (would add dits with dah key pressed)
+      case 3 :  if (!digitalRead(pinKeyDah)==LOW){
+                add_dit(); 
+                break;
+                }else{
+                  break; 
+                }//19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key)
+      case 4 :  if (!digitalRead(pinKeyDah)==LOW){
+                add_dah(); 
+                break;
+                }else{ 
+                  break;
+                }//19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key)
     }
   }
   if (digitalRead(pinKeyDah)==LOW){
@@ -464,12 +491,25 @@ void listenKey(){
       case 0 :  add_dah(); break;
       case 1 :  add_dit(); break;
       case 2 :  add_straight(); break;
+      case 3 :  if (!digitalRead(pinKeyDit)==LOW){
+                add_dah(); 
+                break;
+                }else{ 
+                  break;
+                }//19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key)
+      case 4 :  if (!digitalRead(pinKeyDit)==LOW){
+                add_dit(); 
+                break;
+                }else{
+                  break; 
+                }//19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key)
     }
   }
 }
 
 /*
- * This functions sends a "touch" to the Nextion display in order to keep it out of timed sleep. 24 OCT 2020 WW9JD
+ * 24 OCT 2020 WW9JD
+ * This function sends a "touch" to the Nextion display in order to keep it out of timed sleep. 
  */
 void sendTouch(){
     if ((touched) && (millis() - holdTouchtime > 25)) {
@@ -524,7 +564,34 @@ void add_dah(){
   }else{
     delay(dit);
   }
-  if (dit_pressed) add_dit();
+  if (dit_pressed){
+     squeeze = true; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
+     add_dit();
+    }
+  if ((abMode)&&(squeeze)){
+     squeeze = false;
+     xtra_dit(); 
+    }// 19 NOV 2020 WW9JD - Added to support Iambic Mode B
+}
+
+// 19 NOV 2020 WW9JD - Added to support Iambic Mode B
+void xtra_dah(){
+  float w_dit;
+  float w_dah;
+  tx_and_sidetone_key(1);
+  if (Weighting){
+    w_dah = 3+f_wt;
+    delay(dit*w_dah);
+  }else{
+    delay(dit*3);
+  }
+  tx_and_sidetone_key(0);
+  if (Weighting){
+    w_dit = 1+f_wt;
+    delay((2*dit)-(dit*w_dit));
+  }else{
+    delay(dit);
+  }
 }
 
 /*
@@ -532,7 +599,7 @@ void add_dah(){
  * While the location for dah sensing has never seemed to be a problem, it could, of course, be adjusted.
  */
 void add_dit(){
-float w_dit;
+  float w_dit;
   tx_and_sidetone_key(1);
   if (Weighting){
     w_dit = 1+f_wt;
@@ -547,7 +614,38 @@ float w_dit;
     delay(dit);
   }
   if (((Mode == 0) && (digitalRead(pinKeyDah)==LOW)) || ((Mode == 1) && (digitalRead(pinKeyDit)==LOW))){
-    add_dah();
+     squeeze=true; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
+     add_dah();
+    }
+  if ((abMode)&&(squeeze)){
+     squeeze=false;
+     xtra_dah();
+    }// 19 NOV 2020 WW9JD - Added to support Iambic Mode B
+}
+
+
+// 19 NOV 2020 WW9JD - Added to support Iambic Mode B
+void xtra_dit(){
+  float w_dit;
+  tx_and_sidetone_key(1);
+  if (Weighting){
+    w_dit = 1+f_wt;
+    delay(dit*w_dit);
+  }else{
+    delay(dit);
+  }
+  tx_and_sidetone_key(0);
+  if (Weighting){
+    delay((2*dit)-(dit*w_dit));
+  }else{
+    delay(dit);
+  }
+  if (((Mode == 0) && (digitalRead(pinKeyDah)==LOW)) || ((Mode == 1) && (digitalRead(pinKeyDit)==LOW))){
+    if (abMode){
+     xtra_dah();
+    }else{
+     add_dah();
+    }
   }
 }
 
@@ -556,7 +654,7 @@ float w_dit;
  * For the straight key, the keyer just closes the PTT and key lines as long that the key is depressed
  */
 void add_straight(){
-    while ((digitalRead(pinKeyStraight)==LOW) || (digitalRead(pinKeyDah)==LOW)){
+    while ((digitalRead(pinKeyStraight)==LOW) || ((digitalRead(pinKeyDah)==LOW) && (!digitalRead(pinKeyDit)==LOW))){
       tx_and_sidetone_key(1);
     }
     tx_and_sidetone_key(0);
@@ -587,15 +685,15 @@ void tx_and_sidetone_key(int ti){
 void XMIT(int tx){
   if (!pracState){
   if(tx==1){
-    digitalWrite (pinPTT,HIGH);
+    digitalWrite(pinPTT,HIGH);
     delay(PTTwait);
-    digitalWrite (pinXMIT,HIGH);
-    digitalWrite (pinOnboardLed,HIGH);
+    digitalWrite(pinXMIT,HIGH);
+    digitalWrite(pinOnboardLed,HIGH);
     }else{
-    digitalWrite (pinXMIT,LOW);
+    digitalWrite(pinXMIT,LOW);
     delay(PTTwait);
-    digitalWrite (pinPTT,LOW);
-    digitalWrite (pinOnboardLed,LOW);
+    digitalWrite(pinPTT,LOW);
+    digitalWrite(pinOnboardLed,LOW);
     }
   }
 }
@@ -1530,7 +1628,7 @@ void BLTextPushCallback(void *ptr) {
 /*
  * The mode_slider component pop function. 
  * When the mode_slider is released, the keyer Mode is selected. 
- * Mode possibilities are: Iambic, Iambic Reversed, and Bug
+ * Mode possibilities are: Iambic, Iambic Reversed, Bug, Single, and Sngl_Rev
  */
 void mode_sliderPopCallback(void *ptr) {
     uint32_t mVal = 0;
@@ -1546,6 +1644,16 @@ void mode_sliderPopCallback(void *ptr) {
                   }
       case 2 : {  Mode = Bug; //1/8" stereo plug: tip-dit / ring-straight key / sleeve-ground
                   mode_text.setText("Bug");
+                  break;
+                  }
+                   //19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key)
+      case 3 : {  Mode = Single; //1/8" stereo plug: tip-dit / ring-dah / sleeve-ground - NO dit/dah memory
+                  mode_text.setText("Single");
+                  break;
+                  }
+                   //19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key)
+      case 4 : {  Mode = Single_Rev; //1/8" stereo plug: tip-dah / ring-dit / sleeve-ground - NO dit/dah memory
+                  mode_text.setText("Sngl-Rev");
                   break;
                   }
     }
@@ -1678,6 +1786,22 @@ void txtDspPushCallback(void *ptr){
       beep(); 
 }
 
+/*
+ * Function added 19 NOV 2020 WW9JD
+ * Switch between Iambic modes A & B
+ */
+void iModePushCallback(void *ptr){
+    uint32_t abHold;
+    iMode.getValue(&abHold);
+    if (abHold==0){
+     abMode = false; 
+    }
+    if (abHold==1){
+     abMode = true; 
+    }
+      beep(); 
+}
+
 
 /*
  * ===========================================================================================
@@ -1758,6 +1882,10 @@ void bSettings2PushCallback(void *ptr) {
     PTTSlider.setValue(PTTwait);
     PTT.setValue(PTTwait);
     mode_slider.setValue(Mode);
+    iMode.setValue(abMode);// 19 NOV 2020 WW9JD - Set Iambic Mode button
+    if (abMode==1){
+      iMode.setText("Iambic Mode B");
+    }
     switch (Mode){
       case 0 : {mode_text.setText("Iambic"); 
                 break;
@@ -1766,6 +1894,12 @@ void bSettings2PushCallback(void *ptr) {
                 break;
                 }
       case 2 : {mode_text.setText("Bug");
+                break;
+                }
+      case 3 : {mode_text.setText("Single"); //19 NOV 2020 WW9JD - Added Single-Lever paddle mode (with dual-lever key) 
+                break;
+                }
+      case 4 : {mode_text.setText("Sngl_Rev");//
                 break;
                 }
     }

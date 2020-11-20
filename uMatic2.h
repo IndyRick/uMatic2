@@ -73,6 +73,7 @@ NexSlider T_Slider = NexSlider(3, 12, "T_Slider"); //30 MAR 20 WW9JD Error disco
 NexSlider PTTSlider = NexSlider(3, 16, "PTTSlider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
 NexButton resetKeyer = NexButton(3, 6, "resetKeyer");
 NexDSButton txtDsp = NexDSButton(3, 26, "txtDsp");
+NexDSButton iMode = NexDSButton(3, 27, "iMode");
 NexButton resetI = NexButton(3, 19, "resetI");
 NexText mode_text = NexText(3, 22, "mode_text");
 NexNumber Pitch = NexNumber(3, 4, "Pitch");
@@ -238,6 +239,7 @@ NexTouch *nex_listen_list[] = {
   &PitchSlider,
   &resetKeyer,
   &txtDsp,
+  &iMode,
   &resetI,
   &bSettings,
   &bSettings2,
