@@ -9,7 +9,7 @@ WW9JD Arduino µMatic² Memory Keyer <br>
 <br>
 ======================================================<br>
 MAIN µMATIC² SKETCH SOURCE CODE (for use in Arduino IDE) <br>
-Current version: 1 NOV 2020 "B"<br>
+Current version: 19 NOV 2020 "C"<br>
 The letter version sounds when EEPROM is reset<br>
 ======================================================<br>
 uMatic2_MEGA_2560_PRO.ino* - Main µMatic² sketch<br>
@@ -38,6 +38,11 @@ NexConfig.h* - Nextion library files modified for this project<br>
 ======================================================<br>
 MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
+- Added keyer modes of Single lever paddle and Single lever paddle Reversed. While you have always <br>
+  been able to use a Single lever paddle (foregoing squeeze keying), now you can use a Dual lever <br>
+  paddle the same way. (19 NOV 2020) <br>
+- Fixed a behavior with the Bug mode that permitted sending dits with the dah lever depressed (19 NOV 2020) <br>  
+- Added ability to send using Iambic Mode B, and made that setting sticky. (19 NOV 2020) <br>
 - Added the ability of SENDing files without displaying the text. Text display was wrecking <br>
   the WPM & Farnsworth timing. The time it takes to communicate the letter to be displayed<br>
   on the Nextion via serial added a fixed delay that did not vary with WPM speed. The<br>
@@ -53,6 +58,8 @@ MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
 NEXTION DISPLAY - Recent changes   <br>
 ======================================================<br>
+- The Keyer Settings Page has added a two-state button that sets Iambic Mode A/B. (19 NOV 2020)<br>
+- The Keyer Mode slider has been modified to include Single lever and Sngl-Rev modes. (19 NOV 2020)<br>
 - The Keyer Settings Page has added a two-state button that enables/disables text display. (1 NOV 2020)<br>
 - Settings / Clock (minutes update resets seconds to zero)<br>
 - Settings / Clock (display shows HH:MM:SS)<br>
