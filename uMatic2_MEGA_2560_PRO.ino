@@ -10,7 +10,7 @@
  * 
  * Fritzing file "completed" 20 AUG 2019 
  * https://github.com/IndyRick/uMatic2
- * Current Sketch "C" - 19 NOV 2020 
+ * Current Sketch "D" - 5 DEC 2020 WW9JD 
  * On 25 OCT 2020 WW9JD added transmitting the Current Sketch "letter code" for am audible version verification.
  *   This only sounds when the keyer is reset, to avoid it being annoying.
  * First PCB design (Ver 1) completed 24 AUG 2019
@@ -58,15 +58,25 @@ float f_WPM = 20; //Farnsworth speed when sending files
 bool Weighting = false; //Change the standard 1:3 dit:dah ratio
 int wt = 5; //Weight - "ratio" of dit to dah 0-9
 float rpt = 0; //Repeat - Number of times to repeat the sending of a file
-float T_Const = 75; //Timing Constant - To account for timing changes between different hardware configurations
+float T_Const = 100; //Timing Constant - To account for timing changes between different hardware configurations
 int Mode = Iambic;
 int PTTwait = 5; //Delay in ms between closing the PTT and Sending lines
-int testI = 0; //A Serial Number that can be used in contests
+bool vMode = 0;//Contest Mode                                 //5 DEC 2020 WW9JD Added for Contest Mode
+int test1 = 1; //A Serial Number that can be used in contests //
+int test2 = 1; //A Serial Number that can be used in contests //
+int test3 = 1; //A Serial Number that can be used in contests //
+int test4 = 1; //A Serial Number that can be used in contests //
+int test5 = 1; //A Serial Number that can be used in contests //
+int test6 = 1; //A Serial Number that can be used in contests //
+int testN = 1; //Serial Number in use                         //
+int Zero = 0;  //Serial number leading zeros                  //
+int qMode = 0; //Calliing CQ or Hunt & Pounce                 //
+bool sTest = 0; //Sent current serial number status           //
 bool unMute = 1; // 24 APR 2020 WW9JD Sidetone is ON (MUTE saves state through resets & power cycles)
 bool BacklightOnly = 0;  // 30 MAY 2020 WW9JD - Settings saves/sets Backlight checkbox (false means 2560 sleeps, too)
 int abMode = 0; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
 int CL = 6; //Call Length - Length of EEPROM memory when using call signs of fixed length
-char call[] = "KK9ABC"; //Default call sign (not allocated to any ham as of Aug 2019)
+char call[] = "KK9ABC"; //Default call sign (not allocated to any Ham as of Aug 2019)
 
 
 // Setup EEPROM storage
@@ -87,7 +97,17 @@ float e_rpt;
 float e_T_Const;
 int e_Mode;
 int e_PTTwait;
-int e_testI;
+bool e_vMode;//5 DEC 2020 WW9JD Contest Mode
+int e_test1; //5 DEC 2020 WW9JD Contest Mode serial number storage
+int e_test2; //
+int e_test3; //
+int e_test4; //
+int e_test5; //
+int e_test6; //
+int e_testN; //5 DEC 2020 WW9JD Contest Mode active serial number bank
+int e_Zero; //5 DEC 2020 WW9JD Contest Mode leading zeros for serial number
+int e_qMode; //5 DEC 2020 WW9JD Contest Mose Calling CQ or Hunt & Pounce 
+bool e_sTest; //1JAN 2021 WW9JD Contest Mode Sent Contest Serial #
 bool e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
 bool e_BacklightOnly;  // 30 MAY 2020 WW9JD - Settings saves/sets Backlight checkbox
 int e_abMode; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
@@ -130,6 +150,9 @@ bool dispTxt = true; // 1 NOV 2020 WW9JD - Saves state of transmitted text displ
 bool dispTxtHold; //
 int abModeHold; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
 bool squeeze=false; //
+char call2[20]; //5 DEC 2020 WW9JD 2nd call sign for Contest Mode
+uint32_t holdI = 1; //5 DEC 2020 WW9JD Added for Contest Mode serial numbers
+int testI = 1; //
 
 
 /*
@@ -145,6 +168,9 @@ void setup() {
   // Set the baud rate which is for debug (dbSerial) and communication with Nextion screen (NexSerial or Serial1)
   nexInit();  //Startup the Nextion display
   loadSettings(); //Loads keyer settings from EEPROM/default
+  hold = "[N/A]";
+  hold.toCharArray(call2, 30); //30 characters are used to store the call sign
+  
 
 //PIN setup
   pinMode(pinKeyStraight, INPUT_PULLUP); //PIN 2
@@ -190,13 +216,12 @@ void setup() {
   LOAD2.attachPush(LOAD2PushCallback, &LOAD2);
   SEND2.attachPush(SEND2PushCallback, &SEND2);
   STOP2.attachPush(STOP2PushCallback, &STOP2);
+  bSerial.attachPush(bSerialPushCallback, &bSerial);
   EnterText.attachPush(EnterTextPushCallback, &EnterText);
   EnterText4.attachPush(EnterText4PushCallback, &EnterText4);
   WPMSlider.attachPop(WPMSliderPopCallback, &WPMSlider);
   Splash.attachPush(SplashPushCallback, &Splash);
   SplashPic.attachPush(SplashPicPushCallback, &SplashPic);
-  QWERTY.attachPush(QWERTYPushCallback, &QWERTY);
-  REFS.attachPush(REFSPushCallback, &REFS);
   mode_slider.attachPop(mode_sliderPopCallback, &mode_slider);
   PitchSlider.attachPop(PitchSliderPopCallback, &PitchSlider);
   VolSlider.attachPop(VolSliderPopCallback, &VolSlider);
@@ -206,19 +231,50 @@ void setup() {
   txtDsp.attachPush(txtDspPushCallback, &txtDsp);
   iMode.attachPush(iModePushCallback, &iMode);
   resetI.attachPush(resetIPushCallback, &resetI);
-  bSettings.attachPush(bSettingsPushCallback, &bSettings);
-  bSettings2.attachPush(bSettings2PushCallback, &bSettings2);
-  bSettings3.attachPush(bSettings3PushCallback, &bSettings3);
-  bSettings4.attachPush(bSettings4PushCallback, &bSettings4);
-  bSettings5.attachPush(bSettings5PushCallback, &bSettings5);
+  bZero.attachPush(bZeroPushCallback, &bZero);
+  bqMode.attachPush(bqModePushCallback, &bqMode);
+  r0.attachPush(r0PushCallback, &r0);
+  r1.attachPush(r1PushCallback, &r1);
+  r2.attachPush(r2PushCallback, &r2);
+  r3.attachPush(r3PushCallback, &r3);
+  r4.attachPush(r4PushCallback, &r4);
+  r5.attachPush(r5PushCallback, &r5);
+  First_1.attachPush(First_1PushCallback, &First_1);
+  First_2.attachPush(First_2PushCallback, &First_2);
+  First_3.attachPush(First_3PushCallback, &First_3);
+  First_4.attachPush(First_4PushCallback, &First_4);
+  First_5.attachPush(First_5PushCallback, &First_5);
+  Home_1.attachPush(Home_1PushCallback, &Home_1);
+  Home_2.attachPush(Home_2PushCallback, &Home_2);
+  Home_3.attachPush(Home_3PushCallback, &Home_3);
+  Home_4.attachPush(Home_4PushCallback, &Home_4);
+  Home_5.attachPush(Home_5PushCallback, &Home_5);
+  qwerty_1.attachPush(qwerty_1PushCallback, &qwerty_1);
+  qwerty_2.attachPush(qwerty_2PushCallback, &qwerty_2);
+  qwerty_3.attachPush(qwerty_3PushCallback, &qwerty_3);
+  qwerty_4.attachPush(qwerty_4PushCallback, &qwerty_4);
+  qwerty_5.attachPush(qwerty_5PushCallback, &qwerty_5);
+  Keyer_1.attachPush(Keyer_1PushCallback, &Keyer_1);
+  Keyer_2.attachPush(Keyer_2PushCallback, &Keyer_2);
+  Keyer_3.attachPush(Keyer_3PushCallback, &Keyer_3);
+  Keyer_4.attachPush(Keyer_4PushCallback, &Keyer_4);
+  Keyer_5.attachPush(Keyer_5PushCallback, &Keyer_5);
+  Settings_1.attachPush(Settings_1PushCallback, &Settings_1);
+  Settings_2.attachPush(Settings_2PushCallback, &Settings_2);
+  Settings_3.attachPush(Settings_3PushCallback, &Settings_3);
+  Settings_4.attachPush(Settings_4PushCallback, &Settings_4);
+  Settings_5.attachPush(Settings_5PushCallback, &Settings_5);
+  Refs_1.attachPush(Refs_1PushCallback, &Refs_1);
+  Refs_2.attachPush(Refs_2PushCallback, &Refs_2);
+  Refs_3.attachPush(Refs_3PushCallback, &Refs_3);
+  Refs_4.attachPush(Refs_4PushCallback, &Refs_4);
+  Refs_5.attachPush(Refs_5PushCallback, &Refs_5);
   bsplash.attachPush(bsplashPushCallback, &bsplash);
   callText.attachPush(callTextPushCallback, &callText);
   callText4.attachPush(callText4PushCallback, &callText4);
   bref.attachPush(brefPushCallback, &bref);
-  bHome2.attachPush(bHome2PushCallback, &bHome2);
-  bHome4.attachPush(bHome4PushCallback, &bHome4);
-  bHome5.attachPush(bHome5PushCallback, &bHome5);
   bendFile.attachPush(bendFilePushCallback, &bendFile);
+  nMode.attachPush(nModePushCallback, &nMode);
   _0.attachPush(_0PushCallback, &_0);
   _1.attachPush(_1PushCallback, &_1);
   _2.attachPush(_2PushCallback, &_2);
@@ -325,10 +381,10 @@ void setup() {
   PRACPushCallback(&PRAC);
   hold = String(call);
   keyBuff = "";
-  keyBuff = "K[Ready]";
+  keyBuff = "K[Ready]  ";
   if (hold == "KK9ABC"){
-    keyBuff = keyBuff + "C[Sketch version 19 NOV 2020]   "; //25 OCT 2020 WW9JD Transmits sketch version info on RESET
-    keyBuff = keyBuff + "[To set your callsign - 1.Tap QWERTY KYBD 2.Tap LOAD 3.Enter your call with the green keys 4.Tap END FILE]";
+    keyBuff = keyBuff + "D[Sketch version 5 DEC 2020 WW9JD]   "; //25 OCT 2020 WW9JD Transmits sketch version info on RESET
+    keyBuff = keyBuff + "[To set your callsign - 1.Tap QWERTY key 2.Tap LOAD 3.Enter your call with the green keys 4.Tap END FILE]";
   }
   while (keyBuff != ""){
     loop(); //Gives the sketch the chance to send text
@@ -400,17 +456,43 @@ void loadSettings() {
   T_Const = keyerSettings.e_T_Const;
   Mode = keyerSettings.e_Mode;
   PTTwait = keyerSettings.e_PTTwait;
-  testI = keyerSettings.e_testI;
+  vMode = keyerSettings.e_vMode;
+  test1 = keyerSettings.e_test1;
+  test2 = keyerSettings.e_test2;
+  test3 = keyerSettings.e_test3;
+  test4 = keyerSettings.e_test4;
+  test5 = keyerSettings.e_test5;
+  test6 = keyerSettings.e_test6;
+  testN = keyerSettings.e_testN;
+  Zero = keyerSettings.e_Zero;
+  qMode = keyerSettings.e_qMode;
+  sTest = keyerSettings.e_sTest;
   unMute = keyerSettings.e_unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
   BacklightOnly = keyerSettings.e_BacklightOnly; // 30 MAY 2020 WW9JD - Settings sets Backlight state 
   abMode = keyerSettings.e_abMode; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
   EEPROM.get(200, call);
+  switch (testN){
+    case 1: testI = test1; break;                     
+    case 2: testI = test2; break;                     
+    case 3: testI = test3; break;                     
+    case 4: testI = test4; break;                     
+    case 5: testI = test5; break;                     
+    case 6: testI = test6; break;                     
+  }
 }
 
 /*
  * Save variable settings to EEPROM
  */
 void saveSettings() {
+  switch (testN){
+    case 1: test1 = testI; break;                     
+    case 2: test2 = testI; break;                     
+    case 3: test3 = testI; break;                     
+    case 4: test4 = testI; break;                     
+    case 5: test5 = testI; break;                     
+    case 6: test6 = testI; break;                     
+  }
   myObject keyerSettings;
   keyerSettings.e_toneFreq = toneFreq;
   keyerSettings.e_toneVol = toneVol;
@@ -422,7 +504,17 @@ void saveSettings() {
   keyerSettings.e_T_Const = T_Const;
   keyerSettings.e_Mode = Mode;
   keyerSettings.e_PTTwait = PTTwait;
-  keyerSettings.e_testI = testI;
+  keyerSettings.e_vMode = vMode;
+  keyerSettings.e_test1 = test1;
+  keyerSettings.e_test2 = test2;
+  keyerSettings.e_test3 = test3;
+  keyerSettings.e_test4 = test4;
+  keyerSettings.e_test5 = test5;
+  keyerSettings.e_test6 = test6;
+  keyerSettings.e_testN = testN;
+  keyerSettings.e_Zero = Zero;
+  keyerSettings.e_qMode = qMode;
+  keyerSettings.e_sTest = sTest;
   keyerSettings.e_unMute = unMute;  // 24 APR 2020 WW9JD - MUTE saves state through resets & power cycles
   keyerSettings.e_BacklightOnly = BacklightOnly; // 30 MAY 2020 WW9JD - Settings saves Backlight state 
   keyerSettings.e_abMode = abMode; // 19 NOV 2020 WW9JD - Added to support Iambic Mode B
@@ -716,6 +808,7 @@ void myDelay(long DelayTime){
 void ReadText(){
   String txt;
   String testNum;
+  String holdTest;
   char cw[8];
   char MsgHold[1000];
   while ((keyBuff != "") && (!LOADon)){
@@ -810,18 +903,101 @@ void ReadText(){
       case '@' : sendCW("1331312"); break;
       case '%' : sendCW("111111112"); break; //error
       case '*' : keyBuff = call + keyBuff; break; //station call sign
+      case '^' : keyBuff = call2 + keyBuff; break; //5 DEC 2020 WW9JD Contest Mode contact call sign
       case '<' : ps = true; break; //Turn on PROSIGN mode (eliminates character/word spaces)
       case '>' : ps = false; break; //Turn off PROSIGN mode
       case '[' : cmnt = true; break; //Turn on COMMENT mode (permits comments in the .TXT files)
       case ']' : cmnt = false; break; //Turn off COMMENT mode
       case '|' : PCPushCallback(&PC); break; // The "|" character does not have an English CW sequence, so it is used to insert a PAUSE
-      case '#' : {if (testI < 10){ testNum = "00" + String(testI);
-                                    keyBuff = testNum + keyBuff; }
-                  if ((testI > 9) && (testI < 100)){testNum = "0" + String(testI);
-                                    keyBuff = testNum + keyBuff;}
-                  if (testI > 99)keyBuff = testI + keyBuff; 
-                  testI++; 
+      case '#' : {switch (Zero){
+                    case 0: holdTest = String(testI); break;
+                    case 1: {
+                      if (testI < 10){
+                        holdTest = "0" + String(testI);
+                        break; 
+                      }
+                      holdTest = String(testI); 
+                      break;
+                    }
+                    case 2: {
+                      if (testI < 10){
+                        holdTest = "00" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 100){
+                        holdTest = "0" + String(testI); 
+                        break; 
+                      }
+                      holdTest = String(testI); 
+                      break;
+                    }
+                    case 3: {
+                      if (testI < 10){
+                        holdTest = "000" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 100){
+                        holdTest = "00" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 1000){
+                        holdTest = "0" + String(testI); 
+                        break; 
+                      }
+                      holdTest = String(testI); 
+                      break;
+                    }
+                    case 4: {
+                      if (testI < 10){
+                        holdTest = "0000" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 100){
+                        holdTest = "000" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 1000){
+                        holdTest = "00" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 10000){
+                        holdTest = "0" + String(testI); 
+                        break; 
+                      }
+                      holdTest = String(testI); 
+                      break;
+                    }
+                    case 5: {
+                      if (testI < 10){
+                        holdTest = "00000" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 100){
+                        holdTest = "0000" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 1000){
+                        holdTest = "000" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 10000){
+                        holdTest = "00" + String(testI); 
+                        break; 
+                      }
+                      if (testI < 100000){
+                        holdTest = "0" + String(testI); 
+                        break; 
+                      }
+                      holdTest = String(testI); 
+                      break;
+                    }
+                  }
+                  keyBuff = holdTest + keyBuff; 
+                  sTest = true;
+                  SerialFont();
                   break;
+                  saveSettings();
+                  loadSettings();
                   }
     }
   }
@@ -1097,15 +1273,22 @@ void PCPushCallback(void *ptr) {
  * Tap END FILE when done with either.
  */
 void LOAD2PushCallback(void *ptr) {
+    dispTxtHold = dispTxt; // 1 NOV 2020 WW9JD
+    dispTxt = true; // 1 NOV 2020 WW9JD - Display text if hidden so that entered text is displayed
     if (tuneState){
       warble();
       STOPPushCallback(&STOP);
       return;
     }
     if(numi == 0){
+      if (vMode == 0){
       SendHold = "Enter Callsign";
+      }else{  
+      SendHold = "Enter Contact Callsign";
+      }
       qwertyDisp(SendHold);
-      myDelay(2000);
+      //myDelay(1000);
+      beep();
     }
     File myFile;
     SendHold="";
@@ -1178,11 +1361,18 @@ void LOAD2PushCallback(void *ptr) {
             nexLoop(nex_listen_list); //Gives the Nextion display a chance to submit a push event (i.e. STOP something)
           }
           SendHold.toUpperCase();
-          SendHold.toCharArray(call, 30); //30 characters are used to store the call sign
-          saveSettings();
-          qwertyDisp("");
-          callText4.setText(call); //Updates the call display on the QWERTY page
+          if (vMode == 0){
+            SendHold.toCharArray(call, 30); //30 characters are used to store the call sign
+            saveSettings();
+            qwertyDisp("");
+            callText4.setText(call); //Updates the call display on the QWERTY page
+          }else{
+            SendHold.toCharArray(call2, 30); //30 characters are used to store the call sign
+            qwertyDisp("");
+            callText4.setText(call2); //Updates the call display on the QWERTY page (5 DEC 2020 WW9JD with contact call sign)
+          }
           }          
+    dispTxt = dispTxtHold; // 1 NOV 2020 WW9JD
     STOPPushCallback(&STOP);
     return;
 }
@@ -1202,12 +1392,13 @@ void SENDPushCallback(void *ptr) {
       /*warble();
       STOPPushCallback(&STOP);
       */
-      b16PushCallback(&b16); //22 MAR 2020 WW9JD feature suggested by N8DUY (unknowingly - during a phone conversation)
+      //b16PushCallback(&b16); //22 MAR 2020 WW9JD feature suggested by N8DUY (unknowingly - during a phone conversation)
                              /* Tim (N8DUY) commented to me that he had nearly worn out the SEND key on his SA-5010 
                               *  from sending his call so often.  I never realized that the SA-5010 sent memory 0 by
                               *  default if no number keys were pressed before SEND.  As the commented lines show, 
                               *  I had originally programmed that to make the ERROR sound and STOP.
                               */
+      keyBuff = keyBuff + "*";//5 DEC 2020 WW9JD Modified above so that "call" would always be sent, even in Contest Mode
       return;
     }
     String numbHold;
@@ -1516,6 +1707,7 @@ void WPMPushCallback(void *ptr) {
     WPMSlider.setValue(k_WPM); //Speed display on the slider
     n0.setValue(k_WPM); //Speed display on the top of the page
     n4.setValue(f_WPM); //Farnsworth speed display on the top of the page
+    n1q.setValue(k_WPM);//5 DEC 2020 WW9JD QWERTY Page WPM display added for Contest Mode
     STOPPushCallback(&STOP);
    }
 
@@ -1572,12 +1764,13 @@ void MsgDisp(String MsgTxt){
 }
 
 void qwertyDisp(String MsgTxt){
-if (dispTxt || cmnt){             // 1 NOV 2020 WW9JD - Show/hide text so that Farnsworth text speed is accurate
-  char charHold[30];
-  MsgTxt.toCharArray(charHold, 30);
-  qwertyText.setText(charHold);
-  kybdText.setText(charHold);
-}
+  if (dispTxt || cmnt){             // 1 NOV 2020 WW9JD - Show/hide text so that Farnsworth text speed is accurate
+    char charHold[30];
+    MsgTxt.toCharArray(charHold, 30);
+    qwertyText.setText(charHold);
+    kybdText.setText(charHold);
+    n1q.setValue(k_WPM);//5 DEC 2020 WW9JD QWERTY Page WPM display added for Contest Mode
+  }
 }
 
 /*
@@ -1740,6 +1933,27 @@ void PTTSliderPopCallback(void *ptr) {
   
 
 /*
+ * QWERTY push callback functions. 
+ * When the QWERTY key is touched, the QWERTY keyboard is displayed with the LEDs set. 
+ */
+void qwerty_2PushCallback(void *ptr) {
+    qwerty_1PushCallback(&qwerty_1);
+}
+  
+void qwerty_3PushCallback(void *ptr) {
+    qwerty_1PushCallback(&qwerty_1);
+}
+  
+void qwerty_4PushCallback(void *ptr) {
+    qwerty_1PushCallback(&qwerty_1);
+}
+  
+void qwerty_5PushCallback(void *ptr) {
+    qwerty_1PushCallback(&qwerty_1);
+}
+  
+
+/*
  * Clear the EEPROM completely
  * Store an "R" at EEPROM location 1023 so that the keyer will load the default values the next time
  */
@@ -1753,12 +1967,109 @@ void resetKeyerPushCallback(void *ptr){
 
 
 /*
- * Reset the Contest Serial Number to 0
- * <F>Ability to have multiple Contest Serial numbers
- *  - Some contests ask for serial numbers that are band/mode/operator dependent
+ * 5 DEC 2020 WW9JD Added for Contest Mode
+ * Reset the selected Contest Serial Number to 0
  */
 void resetIPushCallback(void *ptr){
-      testI = 0; 
+    testI = 1; 
+    switch (testN){
+      case 1: test1 = testI; break;                     
+      case 2: test2 = testI; break;                     
+      case 3: test3 = testI; break;                     
+      case 4: test4 = testI; break;                     
+      case 5: test5 = testI; break;                     
+      case 6: test6 = testI; break;                     
+    }
+    n0t.setValue(test1);
+    n2t.setValue(test2);
+    n6t.setValue(test3);
+    n7t.setValue(test4);
+    n8t.setValue(test5);
+    n9t.setValue(test6);
+    saveSettings();
+    beep();   
+}
+
+
+/*
+ * 5 DEC 2020 WW9JD Added for Contest Mode
+ * Set serial number leading zeros
+ */
+void bZeroPushCallback(void *ptr){
+    String holdText;
+    char holdTxt[15];
+    Zero++;
+    if (Zero >= 6) Zero = 0;
+    saveSettings();
+    loadSettings();
+    holdText = "Zeros - " + String(Zero);
+    holdText.toCharArray(holdTxt, 15);
+    bZero.setText(holdTxt);
+    beep();   
+}
+
+
+/*
+ * 5 DEC 2020 WW9JD Added for Contest Mode
+ * Set Send CQ or Hunt & Pounce mode
+ */
+void bqModePushCallback(void *ptr){
+    uint32_t hideTxt;
+    bqMode.getValue(&hideTxt);
+    if (hideTxt==1){
+     qMode = 1; 
+    }
+    if (hideTxt==0){
+     qMode = 0; 
+    }
+    beep();
+    saveSettings();
+}
+
+
+/*
+ * 5 DEC 2020 WW9JD Added for Contest Mode
+ * Select the Contest Serial Number
+ */
+void r0PushCallback(void *ptr){
+      testN = 1; 
+      n0t.getValue(&holdI);
+      testI = holdI;
+      saveSettings();
+      beep();   
+}
+void r1PushCallback(void *ptr){
+      testN = 2; 
+      n2t.getValue(&holdI);
+      testI = holdI;
+      saveSettings();
+      beep();   
+}
+void r2PushCallback(void *ptr){
+      testN = 3; 
+      n6t.getValue(&holdI);
+      testI = holdI;
+      saveSettings();
+      beep();   
+}
+void r3PushCallback(void *ptr){
+      testN = 4; 
+      n7t.getValue(&holdI);
+      testI = holdI;
+      saveSettings();
+      beep();   
+}
+void r4PushCallback(void *ptr){
+      testN = 5; 
+      n8t.getValue(&holdI);
+      testI = holdI;
+      saveSettings();
+      beep();   
+}
+void r5PushCallback(void *ptr){
+      testN = 6; 
+      n9t.getValue(&holdI);
+      testI = holdI;
       saveSettings();
       beep();   
 }
@@ -1799,7 +2110,8 @@ void iModePushCallback(void *ptr){
     if (abHold==1){
      abMode = true; 
     }
-      beep(); 
+    beep();
+    saveSettings();
 }
 
 
@@ -1844,36 +2156,122 @@ void SplashPicPushCallback(void *ptr) {
  * Main Page QWERTY push callback function. 
  * When the QWERTY KYBD key is touched, the QWERTY keyboard is displayed with the LEDs set. 
  */
-void QWERTYPushCallback(void *ptr) {
+void qwerty_1PushCallback(void *ptr) {
+  String holdLabel;
+  char charLabel[6];
+  loadSettings();
+  holdLabel = String(testI);
+  holdLabel.toCharArray(charLabel, 6);
+  bSerial.setText(charLabel);
+  SerialFont();
+  if(vMode){
+    if (qMode == 0) nMode.setText("Call CQ");
+    if (qMode == 1) nMode.setText("H & P");
+    nMode.Set_background_color_bco(64512);
+    b16.Set_background_color_bco(64512);
+    b20.Set_background_color_bco(64512);
+    b21.Set_background_color_bco(64512);
+    b22.Set_background_color_bco(64512);
+    b23.Set_background_color_bco(64512);
+    b24.Set_background_color_bco(64512);
+    b25.Set_background_color_bco(64512);
+    b26.Set_background_color_bco(64512);
+    b27.Set_background_color_bco(64512);
+    b28.Set_background_color_bco(64512);
+    b29.Set_background_color_bco(64512);
+    bSerial.Set_background_color_bco(64512);
+    PRAC2.Set_background_color_bco(64512);
+    PRAC2.setText("C");
+    callText4.setText(call2);
+  }else{
+    nMode.setText("Normal");
+    nMode.Set_background_color_bco(2024);
+    b16.Set_background_color_bco(2016);
+    b20.Set_background_color_bco(0);
+    b21.Set_background_color_bco(0);
+    b22.Set_background_color_bco(0);
+    b23.Set_background_color_bco(0);
+    b24.Set_background_color_bco(0);
+    b25.Set_background_color_bco(0);
+    b26.Set_background_color_bco(0);
+    b27.Set_background_color_bco(0);
+    b28.Set_background_color_bco(0);
+    b29.Set_background_color_bco(0);
+    bSerial.Set_background_color_bco(34815);
+    PRAC2.Set_background_color_bco(34815);
+    PRAC2.setText("WPM");
     callText4.setText(call);
-    STOPPushCallback(&STOP);
+  }
+  STOPPushCallback(&STOP);
+  beep();
 }
   
 
 /*
- * Main Page REFS push callback function. 
+ * REFS Page push callback function. 
  * When the REFS key is touched, the References Index page is displayed. 
  */
-void REFSPushCallback(void *ptr) {
+void Refs_1PushCallback(void *ptr) {
+    beep();
+}
+  
+void Refs_2PushCallback(void *ptr) {
+    beep();
+}
+  
+void Refs_3PushCallback(void *ptr) {
+    beep();
+}
+  
+void Refs_4PushCallback(void *ptr) {
+    beep();
+}
+  
+void Refs_5PushCallback(void *ptr) {
     beep();
 }
   
 
 /*
- * Main page SETTINGS button push callback function. 
- * When the Main Page SETTINGS button is touched, the Display Settings page is shown. 
+ * KEYER push callback function. 
+ * When the KEYER key is touched, the Keyer Settings page is displayed. 
  */
-void bSettingsPushCallback(void *ptr) {
-    Backlight.setValue(BacklightOnly);
-    beep();
+void Keyer_1PushCallback(void *ptr) {
+    Keyer_3PushCallback(&Keyer_3); 
 }
+  
+void Keyer_2PushCallback(void *ptr) {
+    Keyer_3PushCallback(&Keyer_3); 
+}
+  
+void Keyer_4PushCallback(void *ptr) {
+    Keyer_3PushCallback(&Keyer_3); 
+}
+  
+void Keyer_5PushCallback(void *ptr) {
+    Keyer_3PushCallback(&Keyer_3); 
+}
+  
 
 /*
  * Settings page KEYER SETTINGS button push callback function. 
  * When the KEYER SETTINGS button is touched, the Keyer Settings page is displayed 
  * and the page's controls are set to display their current values.
  */
-void bSettings2PushCallback(void *ptr) {
+void Keyer_3PushCallback(void *ptr) {
+    String holdText;
+    char holdTxt[15];
+    saveSettings();
+    loadSettings();
+    holdText = "Zeros - " + String(Zero);
+    holdText.toCharArray(holdTxt, 15);
+    bZero.setText(holdTxt);
+    n0t.setValue(test1); //5 DEC 2020 WW9JD Contest Mode
+    n2t.setValue(test2); //
+    n6t.setValue(test3); //
+    n7t.setValue(test4); //
+    n8t.setValue(test5); //
+    n9t.setValue(test6); //
     Pitch.setValue(toneFreq);
     VolSlider.setValue(toneVol);
     Vol.setValue(toneVol);
@@ -1883,8 +2281,15 @@ void bSettings2PushCallback(void *ptr) {
     PTT.setValue(PTTwait);
     mode_slider.setValue(Mode);
     iMode.setValue(abMode);// 19 NOV 2020 WW9JD - Set Iambic Mode button
+    bqMode.setValue(qMode);// 19 NOV 2020 WW9JD - Set QSO Mode button
+    if (!dispTxt){
+      txtDsp.setValue(1);
+    }
     if (abMode==1){
       iMode.setText("Iambic Mode B");
+    }
+    if (qMode==1){
+      bqMode.setText("Hunt & Pounce");
     }
     switch (Mode){
       case 0 : {mode_text.setText("Iambic"); 
@@ -1903,15 +2308,65 @@ void bSettings2PushCallback(void *ptr) {
                 break;
                 }
     }
+    switch (testN){
+      case 1 : {r0.setValue(1);
+                r1.setValue(0);
+                r2.setValue(0);
+                r3.setValue(0);
+                r4.setValue(0);
+                r5.setValue(0);
+                break;
+                }
+      case 2 : {r0.setValue(0);
+                r1.setValue(1);
+                r2.setValue(0);
+                r3.setValue(0);
+                r4.setValue(0);
+                r5.setValue(0);
+                break;
+                }
+      case 3 : {r0.setValue(0);
+                r1.setValue(0);
+                r2.setValue(1);
+                r3.setValue(0);
+                r4.setValue(0);
+                r5.setValue(0);
+                break;
+                }
+      case 4 : {r0.setValue(0);
+                r1.setValue(0);
+                r2.setValue(0);
+                r3.setValue(1);
+                r4.setValue(0);
+                r5.setValue(0);
+                break;
+                }
+      case 5 : {r0.setValue(0);
+                r1.setValue(0);
+                r2.setValue(0);
+                r3.setValue(0);
+                r4.setValue(1);
+                r5.setValue(0);
+                break;
+                }
+      case 6 : {r0.setValue(0);
+                r1.setValue(0);
+                r2.setValue(0);
+                r3.setValue(0);
+                r4.setValue(0);
+                r5.setValue(1);
+                break;
+                }
+    }
     beep();
 }
 
 /*
- * Keyer Settings page SETTINGS button push callback function. 
- * When the Keyer Settings page SETTINGS button is touched,
- * the Display Settings page is displayed. 
+ * Main page SETTINGS button push callback function. 
+ * When the Main Page SETTINGS button is touched, the Display Settings page is shown. 
  */
-void bSettings3PushCallback(void *ptr) {
+void Settings_2PushCallback(void *ptr) {
+    Backlight.setValue(BacklightOnly);
     beep();
 }
 
@@ -1919,19 +2374,23 @@ void bSettings3PushCallback(void *ptr) {
  * QWERTY page SETTINGS button push callback function. 
  * When the QWERTY page SETTINGS button is touched,
  * the Display Settings page is displayed. 
- */
-void bSettings4PushCallback(void *ptr) {
-    beep();
+*/
+void Settings_1PushCallback(void *ptr) {
+    Settings_2PushCallback(&Settings_2); //5 DEC 2020 WW9JD
 }
 
-/*
- * References Index page SETTINGS button push callback function. 
- * When the References Index page SETTINGS button is touched,
- * the Display Settings page is displayed. 
- */
-void bSettings5PushCallback(void *ptr) {
-    beep();
+void Settings_3PushCallback(void *ptr) {
+    Settings_2PushCallback(&Settings_2); //5 DEC 2020 WW9JD
 }
+
+void Settings_4PushCallback(void *ptr) {
+    Settings_2PushCallback(&Settings_2); //5 DEC 2020 WW9JD
+}
+
+void Settings_5PushCallback(void *ptr) {
+    Settings_2PushCallback(&Settings_2); //5 DEC 2020 WW9JD
+}
+
 
 /*
  * Display Settings page 1ST button push callback function. 
@@ -1952,11 +2411,64 @@ void brefPushCallback(void *ptr) {
 }
 
 /*
+ * Main page 1st button push callback function (changes to the 1st "splash" Page)). 
+ */
+void First_1PushCallback(void *ptr) {
+    beep();
+}
+
+/*
+ * Settings page 1st button push callback function (changes to the 1st "splash" Page)). 
+ */
+void First_2PushCallback(void *ptr) {
+    beep();
+}
+
+/*
+ * Keyer Settings page 1st button push callback function (changes to the 1st "splash" Page)). 
+ */
+void First_3PushCallback(void *ptr) {
+    beep();
+}
+
+/*
+ * QWERTY page 1st button push callback function (changes to the 1st "splash" Page)). 
+ */
+void First_4PushCallback(void *ptr) {
+    beep();
+}
+
+/*
+ * Refs page 1st button push callback function (changes to the 1st "splash" Page)). 
+ */
+void First_5PushCallback(void *ptr) {
+    beep();
+}
+
+/*
+ * Main page HOME button push callback function (calls the Splash function). 
+ * When the Display Settings page HOME button is touched,
+ * the Main page is displayed with its display values set. 
+ */
+void Home_1PushCallback(void *ptr) {
+   SplashPushCallback(&Splash);
+}
+
+/*
  * Display Settings page HOME button push callback function (calls the Splash function). 
  * When the Display Settings page HOME button is touched,
  * the Main page is displayed with its display values set. 
  */
-void bHome2PushCallback(void *ptr) {
+void Home_2PushCallback(void *ptr) {
+   SplashPushCallback(&Splash);
+}
+
+/*
+ * Keyer Settings page HOME button push callback function (calls the Splash function). 
+ * When the Display Settings page HOME button is touched,
+ * the Main page is displayed with its display values set. 
+ */
+void Home_3PushCallback(void *ptr) {
    SplashPushCallback(&Splash);
 }
 
@@ -1965,7 +2477,7 @@ void bHome2PushCallback(void *ptr) {
  * When the QWERTY page HOME button is touched,
  * the Main page is displayed with its display values set. 
  */
-void bHome4PushCallback(void *ptr) {
+void Home_4PushCallback(void *ptr) {
    SplashPushCallback(&Splash);
 }
 
@@ -1975,7 +2487,7 @@ void bHome4PushCallback(void *ptr) {
  * When the References Index page HOME button is touched,
  * the Main page is displayed with its display values set. 
  */
-void bHome5PushCallback(void *ptr) {
+void Home_5PushCallback(void *ptr) {
    SplashPushCallback(&Splash);
 }
 
@@ -2240,7 +2752,13 @@ void RPT2PushCallback(void *ptr) {
 }
 
 void PRAC2PushCallback(void *ptr) {
-    PRACPushCallback(&PRAC); 
+    if (vMode == 0){
+      WPMPushCallback(&WPM); 
+    }else{
+      numi = 1;
+      numb = "C";
+      DisplayText(numb);
+    }
 }
 
 void PCbPushCallback(void *ptr) {
@@ -2268,6 +2786,29 @@ void SEND2PushCallback(void *ptr) {
 
 void STOP2PushCallback(void *ptr) {
     STOPPushCallback(&STOP); 
+}
+
+/*
+ * 5 DEC 2020 WW9JD
+ * This increments the contest Serial Number and sends the contents of the C1 memory,
+ * which is intended to be the contest CQ
+ */
+void bSerialPushCallback(void *ptr) {
+  String holdLabel;
+  char charLabel[6];
+  testI++;
+  holdLabel = "[N/A]";
+  holdLabel.toCharArray(call2, 30);
+  if (vMode == 0) callText4.setText(call);
+  if (vMode == 1) callText4.setText(call2);
+  sTest = false;
+  saveSettings();
+  loadSettings();
+  holdLabel = String(testI);
+  holdLabel.toCharArray(charLabel, 6);
+  bSerial.setText(charLabel);
+  SerialFont();
+  if ((vMode == 1) && (qMode == 0)) b20PushCallback(&b20); 
 }
 
 void _ZPushCallback(void *ptr) {
@@ -2452,15 +2993,15 @@ void b1PushCallback(void *ptr) {
 }
 
 void b2PushCallback(void *ptr) {
-  keyBuff = keyBuff + "qsl";
-}
-
-void b3PushCallback(void *ptr) {
   keyBuff = keyBuff + "qth";
 }
 
+void b3PushCallback(void *ptr) {
+  keyBuff = keyBuff + "qsl";
+}
+
 void b4PushCallback(void *ptr) {
-  keyBuff = keyBuff + "wx";
+  keyBuff = keyBuff + "tnx";
 }
 
 void b5PushCallback(void *ptr) {
@@ -2500,18 +3041,26 @@ void b13PushCallback(void *ptr) {
 }
 
 void b14PushCallback(void *ptr) {
-  keyBuff = keyBuff + "75";
+  keyBuff = keyBuff + "]";
 }
 
 void b15PushCallback(void *ptr) {
-  keyBuff = keyBuff + "88";
+  keyBuff = keyBuff + "[";
 }
 
 void b16PushCallback(void *ptr) {
-  if (LOADon){
-    keyBuff = keyBuff + "*";
-  }else{
-    keyBuff = keyBuff + call;
+  if (vMode == 0){
+    if (LOADon){
+      keyBuff = keyBuff + "*";
+    }else{
+      keyBuff = keyBuff + call;
+    }
+  }else{  
+    if (LOADon){
+      keyBuff = keyBuff + "^";
+    }else{
+      keyBuff = keyBuff + call2;
+    }
   }
 }
 
@@ -2532,43 +3081,173 @@ void bendFilePushCallback(void *ptr){
 }
 
 void b20PushCallback(void *ptr) {
-  _1PushCallback(&_1);
+  if (vMode == 0){
+    _1PushCallback(&_1);
+  }else{
+    numb = "C1";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b21PushCallback(void *ptr) {
-  _2PushCallback(&_2);
+  if (vMode == 0){
+    _2PushCallback(&_2);
+  }else{
+    numb = "C2";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b22PushCallback(void *ptr) {
-  _3PushCallback(&_3);
+  if (vMode == 0){
+    _3PushCallback(&_3);
+  }else{
+    numb = "C3";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b23PushCallback(void *ptr) {
-  _4PushCallback(&_4);
+  if (vMode == 0){
+   _4PushCallback(&_4);
+  }else{
+    numb = "C4";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b24PushCallback(void *ptr) {
-  _5PushCallback(&_5);
+  if (vMode == 0){
+    _5PushCallback(&_5);
+  }else{
+    numb = "C5";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b25PushCallback(void *ptr) {
-  _6PushCallback(&_6);
+  if (vMode == 0){
+    _6PushCallback(&_6);
+  }else{
+    numb = "C6";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b26PushCallback(void *ptr) {
-  _7PushCallback(&_7);
+  if (vMode == 0){
+    _7PushCallback(&_7);
+  }else{
+    numb = "C7";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b27PushCallback(void *ptr) {
-  _8PushCallback(&_8);
+  if (vMode == 0){
+    _8PushCallback(&_8);
+  }else{
+    numb = "C8";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b28PushCallback(void *ptr) {
-  _9PushCallback(&_9);
+  if (vMode == 0){
+    _9PushCallback(&_9);
+  }else{
+    numb = "C9";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
 }
 
 void b29PushCallback(void *ptr) {
-  _0PushCallback(&_0);
+  if (vMode == 0){
+   _0PushCallback(&_0);
+  }else{
+    numb = "C0";
+    numi = 1;
+    SENDPushCallback(&SEND); 
+  }
+}
+
+//5 DEC 2020 WW9JD Added for Contest Mode
+void nModePushCallback(void *ptr){
+  loadSettings();
+  if (vMode == 0){
+    callText4.setText(call2); //Updates the call display on the QWERTY page
+    vMode = 1;
+  }else{
+    callText4.setText(call); //Updates the call display on the QWERTY page 
+    vMode = 0;
+  }
+  SerialFont();
+  if(vMode){
+    if (qMode == 0) nMode.setText("Call CQ");
+    if (qMode == 1) nMode.setText("H & P");
+    nMode.Set_background_color_bco(64512);
+    b16.Set_background_color_bco(64512);
+    b20.Set_background_color_bco(64512);
+    b21.Set_background_color_bco(64512);
+    b22.Set_background_color_bco(64512);
+    b23.Set_background_color_bco(64512);
+    b24.Set_background_color_bco(64512);
+    b25.Set_background_color_bco(64512);
+    b26.Set_background_color_bco(64512);
+    b27.Set_background_color_bco(64512);
+    b28.Set_background_color_bco(64512);
+    b29.Set_background_color_bco(64512);
+    bSerial.Set_background_color_bco(64512);
+    PRAC2.Set_background_color_bco(64512);
+    PRAC2.setText("C");
+  }else{
+    nMode.setText("Normal");
+    nMode.Set_background_color_bco(2024);
+    b16.Set_background_color_bco(2016);
+    b20.Set_background_color_bco(0);
+    b21.Set_background_color_bco(0);
+    b22.Set_background_color_bco(0);
+    b23.Set_background_color_bco(0);
+    b24.Set_background_color_bco(0);
+    b25.Set_background_color_bco(0);
+    b26.Set_background_color_bco(0);
+    b27.Set_background_color_bco(0);
+    b28.Set_background_color_bco(0);
+    b29.Set_background_color_bco(0);
+    bSerial.Set_background_color_bco(34815);
+    PRAC2.Set_background_color_bco(34815);
+    PRAC2.setText("WPM");
+  }
+  saveSettings();
+  beep();
+}
+
+/*
+ * 
+ */
+void SerialFont(){
+  if(vMode){
+    if (sTest){
+      bSerial.Set_font_color_pco(65535);
+    }else{
+      bSerial.Set_font_color_pco(0);
+    }
+  }else{
+    if (sTest){
+      bSerial.Set_font_color_pco(63488);
+    }else{
+      bSerial.Set_font_color_pco(0);
+    }
+  }
 }
 
 /*
