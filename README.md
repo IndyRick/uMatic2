@@ -9,7 +9,7 @@ WW9JD Arduino µMatic² Memory Keyer <br>
 <br>
 ======================================================<br>
 MAIN µMATIC² SKETCH SOURCE CODE (for use in Arduino IDE) <br>
-Current version: 19 NOV 2020 "C"<br>
+Current version: 5 DEC 2020 "D"<br>
 The letter version sounds when EEPROM is reset<br>
 ======================================================<br>
 uMatic2_MEGA_2560_PRO.ino* - Main µMatic² sketch<br>
@@ -26,7 +26,7 @@ uMatic2_MEGA_2560_PRO.ino.with_bootloader.mega.hex* - Compiled binary file ready
 <br>
 ======================================================<br>
 NEXTION DISPLAY  <br>
-Current version: 1 JUN 2020<br>
+Current version: 5 DEC 2020<br>
 ======================================================<br>
 uMatic2.HMI* - is the UI creation file to use with the Nextion Editor to modify the µMatic² UI <br>
 uMatic2.tft* - is the current compiled UI that you would copy to a µSD card, insert in the Nextion display, turn the power on, wait for the "successed" display, remove the µSD card, cycle the power to use the UI <br>
@@ -38,6 +38,7 @@ NexConfig.h* - Nextion library files modified for this project<br>
 ======================================================<br>
 MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
+- Contest Mode permits SENDing any one of 10 memories with a single button tap (5 DEC 2020)<br>
 - Added keyer modes of Single lever paddle and Single lever paddle Reversed. While you have always <br>
   been able to use a Single lever paddle (foregoing squeeze keying), now you can use a Dual lever <br>
   paddle the same way. (19 NOV 2020) <br>
@@ -58,6 +59,9 @@ MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
 NEXTION DISPLAY - Recent changes   <br>
 ======================================================<br>
+- Tabbed page display on each page (other than the 1st) (5 DEC 2020)<br>
+- Contest serial number display & status (5 DEC 2020)<br>
+- QWERTY Page "Command Key" changes (5 DEC 2020)<br>
 - The Keyer Settings Page has added a two-state button that sets Iambic Mode A/B. (19 NOV 2020)<br>
 - The Keyer Mode slider has been modified to include Single lever and Sngl-Rev modes. (19 NOV 2020)<br>
 - The Keyer Settings Page has added a two-state button that enables/disables text display. (1 NOV 2020)<br>
