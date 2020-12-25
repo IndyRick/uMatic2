@@ -14,20 +14,20 @@ NexButton SPACING = NexButton(1, 15, "SPACING");
 NexButton WPM = NexButton(1, 10, "WPM");
 NexButton SEND = NexButton(1, 4, "SEND");
 NexButton STOP = NexButton(1, 5, "STOP");
-NexCheckbox Backlight = NexCheckbox(2, 30, "Backlight");
+NexCheckbox Backlight = NexCheckbox(2, 25, "Backlight");
 NexText BLText = NexText(2, 1, "BLText");
-NexButton SLEEP0 = NexButton(2, 27, "SLEEP0");
-NexButton SLEEP1 = NexButton(2, 3, "SLEEP1");
-NexButton SLEEP30 = NexButton(2, 10, "SLEEP30");
-NexButton SLEEP2 = NexButton(2, 11, "SLEEP2");
-NexButton SLEEP5 = NexButton(2, 12, "SLEEP5");
-NexButton SLEEP10 = NexButton(2, 29, "SLEEP10");
-NexButton RPT2 = NexButton(4, 57, "RPT2");
-NexButton PRAC2 = NexButton(4, 61, "PRAC2");
-NexButton PCb = NexButton(4, 60, "PCb");
-NexButton LOAD2 = NexButton(4, 59, "LOAD2");
-NexButton SEND2 = NexButton(4, 58, "SEND2");
-NexButton STOP2 = NexButton(4, 56, "STOP2");
+NexButton SLEEP0 = NexButton(2, 22, "SLEEP0");
+NexButton SLEEP1 = NexButton(2, 2, "SLEEP1");
+NexButton SLEEP30 = NexButton(2, 8, "SLEEP30");
+NexButton SLEEP2 = NexButton(2, 9, "SLEEP2");
+NexButton SLEEP5 = NexButton(2, 10, "SLEEP5");
+NexButton SLEEP10 = NexButton(2, 24, "SLEEP10");
+NexButton RPT2 = NexButton(4, 55, "RPT2");
+NexButton PRAC2 = NexButton(4, 59, "PRAC2");
+NexButton PCb = NexButton(4, 58, "PCb");
+NexButton LOAD2 = NexButton(4, 57, "LOAD2");
+NexButton SEND2 = NexButton(4, 56, "SEND2");
+NexButton STOP2 = NexButton(4, 54, "STOP2");
 NexSlider WPMSlider = NexSlider(1, 32, "WPMSlider");
 NexProgressBar Prog = NexProgressBar(1, 31, "Prog");
 NexButton _0 = NexButton(1, 3, "_0");
@@ -44,55 +44,90 @@ NexButton MUTE = NexButton(1, 34, "MUTE");
 NexButton RANGE = NexButton(1, 33, "RANGE");
 NexPage Splash = NexPage(0, 0, "Splash");
 NexPicture SplashPic = NexPicture(0, 1, "SplashPic");
-NexPage QWERTY = NexPage(1, 44, "QWERTY");
-NexPage REFS = NexPage(1, 45, "REFS");
-NexNumber n0 = NexNumber(1, 39, "n0");
-NexNumber n3 = NexNumber(1, 40, "n3");
-NexNumber n4 = NexNumber(1, 41, "n4");
-NexNumber n5 = NexNumber(1, 47, "n5");
+NexNumber n0 = NexNumber(1, 38, "n0");
+NexNumber n3 = NexNumber(1, 39, "n3");
+NexNumber n4 = NexNumber(1, 40, "n4");
+NexNumber n5 = NexNumber(1, 46, "n5");
 NexRadio ledNORM = NexRadio(1, 25, "ledNORM");
 NexRadio ledPRAC = NexRadio(1, 21, "ledPRAC");
 NexRadio ledLOAD = NexRadio(1, 22, "ledLOAD");
 NexRadio ledPAUSE = NexRadio(1, 23, "ledPAUSE");
 NexRadio ledSEND = NexRadio(1, 24, "ledSEND");
-NexRadio ledNORM2 = NexRadio(4, 60, "ledNORM2");
-NexRadio ledPRAC2 = NexRadio(4, 56, "ledPRAC2");
-NexRadio ledLOAD2 = NexRadio(4, 57, "ledLOAD2");
-NexRadio ledPAUSE2 = NexRadio(4, 58, "ledPAUSE2");
-NexRadio ledSEND2 = NexRadio(4, 59, "ledSEND2");
-NexText EnterText = NexText(1, 42, "EnterText");
-NexText callText = NexText(1, 48, "callText");
-NexText callText4 = NexText(4, 95, "callText4");
-NexText EnterText4 = NexText(4, 94, "EnterText4");
-NexText qwertyText = NexText(4, 62, "qwertyText");
-NexText kybdText = NexText(1, 46, "kybdText");
-NexSlider mode_slider = NexSlider(3, 20, "mode_slider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
-NexSlider PitchSlider = NexSlider(3, 3, "PitchSlider");
-NexSlider VolSlider = NexSlider(3, 7, "VolSlider");
-NexSlider T_Slider = NexSlider(3, 12, "T_Slider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
-NexSlider PTTSlider = NexSlider(3, 16, "PTTSlider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
-NexButton resetKeyer = NexButton(3, 6, "resetKeyer");
-NexDSButton txtDsp = NexDSButton(3, 26, "txtDsp");
-NexDSButton iMode = NexDSButton(3, 27, "iMode");
-NexButton resetI = NexButton(3, 19, "resetI");
-NexText mode_text = NexText(3, 22, "mode_text");
-NexNumber Pitch = NexNumber(3, 4, "Pitch");
-NexNumber Vol = NexNumber(3, 8, "Vol");
-NexNumber Time = NexNumber(3, 11, "Time");
+NexRadio ledNORM2 = NexRadio(4, 48, "ledNORM2");
+NexRadio ledPRAC2 = NexRadio(4, 44, "ledPRAC2");
+NexRadio ledLOAD2 = NexRadio(4, 45, "ledLOAD2");
+NexRadio ledPAUSE2 = NexRadio(4, 46, "ledPAUSE2");
+NexRadio ledSEND2 = NexRadio(4, 47, "ledSEND2");
+NexText EnterText = NexText(1, 41, "EnterText");
+NexText callText = NexText(1, 47, "callText");
+NexText callText4 = NexText(4, 93, "callText4");
+NexText EnterText4 = NexText(4, 92, "EnterText4");
+NexText qwertyText = NexText(4, 60, "qwertyText");
+NexText kybdText = NexText(1, 45, "kybdText");
+NexSlider mode_slider = NexSlider(3, 17, "mode_slider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
+NexSlider PitchSlider = NexSlider(3, 1, "PitchSlider");
+NexSlider VolSlider = NexSlider(3, 5, "VolSlider");
+NexSlider T_Slider = NexSlider(3, 10, "T_Slider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
+NexSlider PTTSlider = NexSlider(3, 14, "PTTSlider"); //30 MAR 20 WW9JD Error discovered & Helped troubleshooting N4TVC
+NexButton resetKeyer = NexButton(3, 4, "resetKeyer");
+NexDSButton txtDsp = NexDSButton(3, 23, "txtDsp");
+NexDSButton iMode = NexDSButton(3, 24, "iMode");
+NexButton resetI = NexButton(3, 38, "resetI");
+NexButton bZero = NexButton(3, 39, "bZero");
+NexDSButton bqMode = NexDSButton(3, 40, "bqMode");
+NexText mode_text = NexText(3, 19, "mode_text");
+NexNumber Pitch = NexNumber(3, 2, "Pitch");
+NexNumber Vol = NexNumber(3, 6, "Vol");
+NexNumber Time = NexNumber(3, 9, "Time");
 NexNumber Weight = NexNumber(3, 13, "Weight");
-NexNumber PTT = NexNumber(3, 15, "PTT");
-NexButton bSettings = NexButton(1, 37, "bSettings");
-NexButton bSettings2 = NexButton(2, 16, "bSettings2");
-NexButton bSettings3 = NexButton(3, 2, "bSettings3");
-NexButton bSettings4 = NexButton(4, 42, "bSettings4");
-NexButton bSettings5 = NexButton(5, 1, "bSettings5");
+NexNumber PTT = NexNumber(3, 13, "PTT");
+NexNumber n0t = NexNumber(3, 25, "n0t");
+NexNumber n2t = NexNumber(3, 28, "n2t");
+NexNumber n6t = NexNumber(3, 30, "n6t");
+NexNumber n7t = NexNumber(3, 31, "n7t");
+NexNumber n8t = NexNumber(3, 34, "n8t");
+NexNumber n9t = NexNumber(3, 36, "n9t");
+NexRadio r0 = NexRadio(3, 26, "r0");
+NexRadio r1 = NexRadio(3, 27, "r1");
+NexRadio r2 = NexRadio(3, 29, "r2");
+NexRadio r3 = NexRadio(3, 32, "r3");
+NexRadio r4 = NexRadio(3, 33, "r4");
+NexRadio r5 = NexRadio(3, 35, "r5");
+NexButton First_1 = NexButton(1, 55, "First_1");
+NexButton First_2 = NexButton(2, 28, "First_2");
+NexButton First_3 = NexButton(3, 43, "First_3");
+NexButton First_4 = NexButton(4, 102, "First_4");
+NexButton First_5 = NexButton(5, 23, "First_5");
+NexButton Home_1 = NexButton(1, 56, "Home_1");
+NexButton Home_2 = NexButton(2, 27, "Home_2");
+NexButton Home_3 = NexButton(3, 42, "Home_3");
+NexButton Home_4 = NexButton(4, 101, "Home_4");
+NexButton Home_5 = NexButton(5, 22, "Home_5");
+NexButton qwerty_1 = NexButton(1, 43, "qwerty_1");
+NexButton qwerty_2 = NexButton(2, 26, "qwerty_2");
+NexButton qwerty_3 = NexButton(3, 41, "qwerty_3");
+NexButton qwerty_4 = NexButton(4, 100, "qwerty_4");
+NexButton qwerty_5 = NexButton(5, 21, "qwerty_5");
+NexButton Keyer_1 = NexButton(1, 53, "Keyer_1");
+NexButton Keyer_2 = NexButton(2, 29, "Keyer_2");
+NexButton Keyer_3 = NexButton(3, 44, "Keyer_3");
+NexButton Keyer_4 = NexButton(4, 103, "Keyer_4");
+NexButton Keyer_5 = NexButton(5, 24, "Keyer_5");
+NexButton Settings_1 = NexButton(1, 54, "Settings_1");
+NexButton Settings_2 = NexButton(2, 30, "Settings_2");
+NexButton Settings_3 = NexButton(3, 45, "Settings_3");
+NexButton Settings_4 = NexButton(4, 104, "Settings_4");
+NexButton Settings_5 = NexButton(5, 25, "Settings_5");
+NexButton Refs_1 = NexButton(1, 44, "Refs_1");
+NexButton Refs_2 = NexButton(2, 31, "Refs_2");
+NexButton Refs_3 = NexButton(3, 46, "Refs_3");
+NexButton Refs_4 = NexButton(4, 105, "Refs_4");
+NexButton Refs_5 = NexButton(5, 26, "Refs_5");
 NexButton bsplash = NexButton(2, 12, "bsplash");
 NexButton bref = NexButton(2, 8, "bref");
-NexButton bHome2 = NexButton(2, 2, "bHome2");
-NexButton bHome4 = NexButton(4, 41, "bHome4");
-NexButton bHome5 = NexButton(5, 22, "bHome5");
-NexButton bendFile = NexButton(4, 83, "bendFile");
-NexScrolltext ErrTxt = NexScrolltext(1, 43, "ErrTxt");
+NexButton bendFile = NexButton(4, 81, "bendFile");
+NexButton nMode= NexButton(4, 99, "nMode"); // 5 DEC 2020 WW9JD Added for Contest Mode
+NexScrolltext ErrTxt = NexScrolltext(1, 42, "ErrTxt");
 NexButton _Z = NexButton(4, 1, "_Z");
 NexButton BX = NexButton(4, 2, "BX"); //The Arduino compiler, for the SparkFun BlackBoard Artemis Nano board did not like my keys naming convention for some keys
                                       //so I changed the leading underscore to a "B"
@@ -135,41 +170,42 @@ NexButton b_7 = NexButton(4, 34, "b_7");
 NexButton b_8 = NexButton(4, 33, "b_8");
 NexButton b_9 = NexButton(4, 32, "b_9");
 NexButton b_0 = NexButton(4, 31, "b_0");
-NexButton error = NexButton(4, 45, "error");
-NexButton WORD = NexButton(4, 43, "WORD");
-NexButton BT = NexButton(4, 44, "BT");
-NexButton b0 = NexButton(4, 63, "b0");
-NexButton b1 = NexButton(4, 64, "b1");
-NexButton b2 = NexButton(4, 65, "b2");
-NexButton b3 = NexButton(4, 66, "b3");
-NexButton b4 = NexButton(4, 67, "b4");
-NexButton b5 = NexButton(4, 68, "b5");
-NexButton b6 = NexButton(4, 69, "b6");
-NexButton b7 = NexButton(4, 70, "b7");
-NexButton b8 = NexButton(4, 71, "b8");
-NexButton b9 = NexButton(4, 72, "b9");
-NexButton b10 = NexButton(4, 73, "b10");
-NexButton b11 = NexButton(4, 74, "b11");
-NexButton b12 = NexButton(4, 75, "b12");
-NexButton b13 = NexButton(4, 76, "b13");
-NexButton b14 = NexButton(4, 77, "b14");
-NexButton b15 = NexButton(4, 78, "b15");
-NexButton b16 = NexButton(4, 79, "b16");
-NexButton b17 = NexButton(4, 80, "b17");
-NexButton b18 = NexButton(4, 81, "b18");
-NexButton b19 = NexButton(4, 82, "b19");
-NexButton b20 = NexButton(4, 84, "b20");
-NexButton b21 = NexButton(4, 85, "b21");
-NexButton b22 = NexButton(4, 86, "b22");
-NexButton b23 = NexButton(4, 87, "b23");
-NexButton b24 = NexButton(4, 88, "b24");
-NexButton b25 = NexButton(4, 89, "b25");
-NexButton b26 = NexButton(4, 90, "b26");
-NexButton b27 = NexButton(4, 91, "b27");
-NexButton b28 = NexButton(4, 92, "b28");
-NexButton b29 = NexButton(4, 93, "b29");
-NexNumber n0q = NexNumber(4, 97, "n0q");
-
+NexButton error = NexButton(4, 43, "error");
+NexButton WORD = NexButton(4, 41, "WORD");
+NexButton BT = NexButton(4, 42, "BT");
+NexButton b0 = NexButton(4, 61, "b0");
+NexButton b1 = NexButton(4, 62, "b1");
+NexButton b2 = NexButton(4, 63, "b2");
+NexButton b3 = NexButton(4, 64, "b3");
+NexButton b4 = NexButton(4, 65, "b4");
+NexButton b5 = NexButton(4, 66, "b5");
+NexButton b6 = NexButton(4, 67, "b6");
+NexButton b7 = NexButton(4, 68, "b7");
+NexButton b8 = NexButton(4, 69, "b8");
+NexButton b9 = NexButton(4, 70, "b9");
+NexButton b10 = NexButton(4, 71, "b10");
+NexButton b11 = NexButton(4, 72, "b11");
+NexButton b12 = NexButton(4, 73, "b12");
+NexButton b13 = NexButton(4, 74, "b13");
+NexButton b14 = NexButton(4, 75, "b14");
+NexButton b15 = NexButton(4, 76, "b15");
+NexButton b16 = NexButton(4, 77, "b16");
+NexButton b17 = NexButton(4, 78, "b17");
+NexButton b18 = NexButton(4, 79, "b18");
+NexButton b19 = NexButton(4, 80, "b19");
+NexButton b20 = NexButton(4, 82, "b20");
+NexButton b21 = NexButton(4, 83, "b21");
+NexButton b22 = NexButton(4, 84, "b22");
+NexButton b23 = NexButton(4, 85, "b23");
+NexButton b24 = NexButton(4, 86, "b24");
+NexButton b25 = NexButton(4, 87, "b25");
+NexButton b26 = NexButton(4, 88, "b26");
+NexButton b27 = NexButton(4, 79, "b27");
+NexButton b28 = NexButton(4, 90, "b28");
+NexButton b29 = NexButton(4, 91, "b29");
+NexNumber n0q = NexNumber(4, 95, "n0q");
+NexNumber n1q = NexNumber(4, 97, "n1q");
+NexButton bSerial = NexButton(4, 98, "bSerial");
 
 
 
@@ -215,8 +251,6 @@ NexTouch *nex_listen_list[] = {
   &RANGE,
   &Splash,
   &SplashPic,
-  &QWERTY,
-  &REFS,
   &n0,
   &n3,
   &n4,
@@ -241,20 +275,59 @@ NexTouch *nex_listen_list[] = {
   &txtDsp,
   &iMode,
   &resetI,
-  &bSettings,
-  &bSettings2,
-  &bSettings3,
-  &bSettings4,
-  &bSettings5,
+  &bZero,
+  &bqMode,
+  &n0t,
+  &n2t,
+  &n6t,
+  &n7t,
+  &n8t,
+  &n9t,
+  &r0,
+  &r1,
+  &r2,
+  &r3,
+  &r4,
+  &r5,
+  &First_1,
+  &First_2,
+  &First_3,
+  &First_4,
+  &First_5,
+  &Home_1,
+  &Home_2,
+  &Home_3,
+  &Home_4,
+  &Home_5,
+  &qwerty_1,
+  &qwerty_2,
+  &qwerty_3,
+  &qwerty_4,
+  &qwerty_5,
+  &Keyer_1,
+  &Keyer_2,
+  &Keyer_3,
+  &Keyer_4,
+  &Keyer_5,
+  &Settings_1,
+  &Settings_2,
+  &Settings_3,
+  &Settings_4,
+  &Settings_5,
+  &Refs_1,
+  &Refs_2,
+  &Refs_3,
+  &Refs_4,
+  &Refs_5,
   &bsplash,
   &bref,
-  &bHome2,
   &mode_text,
   &VolSlider,
   &T_Slider,
 //  &W_Slider,
   &PTTSlider,
   &bendFile,
+  &nMode,
   &_Z,
   &BX,  
   &BC,  
@@ -298,8 +371,6 @@ NexTouch *nex_listen_list[] = {
   &error, 
   &WORD,  
   &BT,  
-  &bHome4,
-  &bHome5,
   &qwertyText,
   &kybdText,
   &b0,
@@ -333,5 +404,6 @@ NexTouch *nex_listen_list[] = {
   &b28,
   &b29,
   &n0q,
+  &bSerial,
   NULL
 };

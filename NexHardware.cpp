@@ -225,9 +225,9 @@ bool nexInit(void)
     bool ret2 = false;
     
     dbSerialBegin(9600);
-    Serial1.begin(9600);
+    Serial1.begin(512000);
     sendCommand("");
-    sendCommand("bkcmd=1");
+    sendCommand("bkcmd=2");
     ret1 = recvRetCommandFinished();
     sendCommand("page 0");
     ret2 = recvRetCommandFinished();
