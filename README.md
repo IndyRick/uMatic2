@@ -38,6 +38,7 @@ NexConfig.h* - Nextion library files modified for this project<br>
 ======================================================<br>
 MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
+- Fixed an error where entering too many characters for a callsign corrupted EEPROM. Set 12 character limit. (10 MAY 2021) <br>
 - Contest Mode permits SENDing any one of 10 memories with a single button tap (5 DEC 2020)<br>
 - Added keyer modes of Single lever paddle and Single lever paddle Reversed. While you have always <br>
   been able to use a Single lever paddle (foregoing squeeze keying), now you can use a Dual lever <br>
