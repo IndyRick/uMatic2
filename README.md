@@ -59,6 +59,7 @@ MAIN µMATIC² SKETCH - Recent changes <br>
 ======================================================<br>
 NEXTION DISPLAY - Recent changes   <br>
 ======================================================<br>
+- Added a page that just displays the Day, Date, & Time. Accessed from Settings page (16 OCT 2021)<br>
 - Tabbed page display on each page (other than the 1st) (5 DEC 2020)<br>
 - Contest serial number display & status (5 DEC 2020)<br>
 - QWERTY Page "Command Key" changes (5 DEC 2020)<br>
